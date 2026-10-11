@@ -1,0 +1,19 @@
+# Keeps your free Supabase project from pausing (it pauses after about a week with no requests).
+# Put this file in your GitHub repository at:  .github/workflows/keepalive.yml
+# Then add two repository secrets (Settings > Secrets and variables > Actions):
+#   SUPABASE_URL       e.g. https://abcdxyz.supabase.co
+#   SUPABASE_ANON_KEY  the anon (public) key
+name: Keep Supabase awake
+on:
+  schedule:
+    - cron: '0 6 */3 * *'   # every 3 days
+  workflow_dispatch: {}     # lets you also run it by hand
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the database
+        run: |
+          curl -fsS -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/ping" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" -d '{}'
