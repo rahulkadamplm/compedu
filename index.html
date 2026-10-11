@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CompEdu – Computer Engineering classroom</title>
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%235b6cff'/%3E%3Cpath d='M12 11 7 16l5 5M20 11l5 5-5 5' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a1128;--bg2:#0d1633;--card:#121d42;--card2:#1a2858;--inp:#0b1330;
+  --line:rgba(140,160,255,.17);--text:#e9edfc;--mute:#9aa6cc;
+  --acc:#5b8cff;--acc2:#8b5cf6;--ok:#34d399;--warn:#fbbf24;--bad:#f87171;
+  --grad:linear-gradient(135deg,#4f7dff,#8b5cf6);--sh:0 14px 40px rgba(2,6,30,.45);--r:14px;
+  --fd:'Sora',system-ui,'Segoe UI',sans-serif;
+  --fb:'Source Sans 3',system-ui,'Segoe UI',Roboto,Arial,sans-serif;
+}
+[data-theme=light]{
+  --bg:#f2f4fb;--bg2:#e8ecf8;--card:#ffffff;--card2:#eef1ff;--inp:#ffffff;
+  --line:rgba(30,41,110,.14);--text:#141a3a;--mute:#566087;
+  --acc:#3a64f0;--acc2:#7c3aed;--ok:#0f9f6e;--warn:#b7791f;--bad:#d64545;--sh:0 12px 32px rgba(30,41,110,.14);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font:16px/1.5 var(--fb);background:var(--bg);color:var(--text);min-height:100vh}
+body.lock{overflow:hidden}
+h1,h2,h3,h4{font-family:var(--fd);margin:0;letter-spacing:-.01em;font-weight:600}
+h1{font-size:1.6rem;line-height:1.2}h2{font-size:1.12rem}h3{font-size:1rem}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--acc)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.ic{flex:none;vertical-align:middle}
+.mute{color:var(--mute)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
+
+/* controls */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-weight:600;text-decoration:none;color:var(--text);transition:border-color .15s,filter .15s,transform .05s;white-space:nowrap}
+.btn:hover{border-color:var(--acc)}.btn:active{transform:translateY(1px)}
+.btn.pri{background:var(--grad);border-color:transparent;color:#fff}.btn.pri:hover{filter:brightness(1.1)}
+.btn.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,transparent)}
+.btn.sm{min-height:32px;padding:0 11px;font-size:.88rem;border-radius:8px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.wa{color:#25d366;border-color:color-mix(in srgb,#25d366 45%,transparent)}
+.icon-btn{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:10px;border:1px solid transparent;background:transparent;cursor:pointer;color:var(--mute);position:relative}
+.icon-btn:hover{background:var(--card);color:var(--text);border-color:var(--line)}
+.dot{position:absolute;top:4px;right:3px;min-width:17px;height:17px;border-radius:9px;background:var(--bad);color:#fff;font:700 .68rem/17px var(--fd);text-align:center;padding:0 4px}
+input:not([type=checkbox]):not([type=radio]):not([type=file]),select,textarea{width:100%;min-height:42px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--inp);color:var(--text)}
+textarea{resize:vertical;min-height:90px}
+input[type=file]{width:100%;padding:8px;border:1px dashed var(--line);border-radius:10px;background:var(--inp)}
+input[type=checkbox],input[type=radio]{accent-color:var(--acc);width:17px;height:17px}
+.f{display:grid;gap:6px;font-weight:600;font-size:.9rem;align-content:start}
+.f small{font-weight:400;color:var(--mute);font-size:.82rem}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.stack{display:grid;gap:14px}
+.chk{display:flex;align-items:center;gap:10px;font-weight:600;font-size:.92rem;cursor:pointer}
+.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+
+/* layout */
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;background:var(--bg2);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 14px;gap:18px}
+.brand{display:flex;align-items:center;gap:10px;font:700 1.2rem var(--fd);padding:4px 8px}
+.logo{width:36px;height:36px;border-radius:10px;background:var(--grad);display:grid;place-items:center;color:#fff}
+.nav{display:grid;gap:4px}
+.nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:var(--mute);text-decoration:none;font-weight:600}
+.nav a:hover{background:var(--card);color:var(--text)}
+.nav a[aria-current=page]{background:var(--grad);color:#fff}
+.side-foot{margin-top:auto;display:grid;gap:10px}
+.me{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
+.me b{display:block;font-size:.92rem;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.me small{color:var(--mute)}
+.main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:8px;padding:12px 24px;background:var(--bg);border-bottom:1px solid var(--line)}
+@supports(background:color-mix(in srgb,red,blue)){.top{background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px)}}
+.hamb{display:none}
+.gs{position:relative;flex:1;max-width:460px}
+.gs input{padding-left:38px}
+.gs .ic{position:absolute;left:12px;top:12px;color:var(--mute);pointer-events:none}
+.pill{font-size:.78rem;font-weight:700;padding:4px 10px;border-radius:99px;background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn);white-space:nowrap}
+.pill.ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}.pill.err{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+.sp{flex:1}
+.view{padding:26px 24px 60px;max-width:1180px;width:100%;margin:0 auto}
+.page-h{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.sub{color:var(--mute);margin-top:4px}
+.scrim-nav{display:none}
+.dd-wrap{position:relative}
+.dd{position:absolute;right:0;top:calc(100% + 8px);width:min(380px,92vw);background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);z-index:60;max-height:70vh;overflow:auto}
+.gs .dd{left:0;right:auto;width:100%}
+.dd h4{padding:12px 14px 6px;font-size:.85rem;color:var(--mute);font-weight:600}
+.dd .it{display:flex;gap:10px;width:100%;text-align:left;padding:10px 14px;background:none;border:0;border-top:1px solid var(--line);cursor:pointer}
+.dd .it:hover{background:var(--card2)}
+.dd .it.unread b::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--acc);margin-right:6px}
+.dd .it span{display:block}.dd .it small{color:var(--mute)}
+.dd .none{padding:16px 14px;color:var(--mute)}
+
+/* content */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.card>h2{margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cols{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;margin-top:18px}
+.cols>div{display:grid;gap:18px;align-content:start}
+.strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0 0;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.strip>div{padding:16px 18px;border-right:1px solid var(--line)}.strip>div:last-child{border-right:0}
+.strip b{display:block;font:600 1.6rem var(--fd);line-height:1.1}.strip span{color:var(--mute);font-size:.88rem}
+.hero{display:grid;grid-template-columns:1fr auto;gap:22px;align-items:center;padding:26px 28px;border-radius:18px;background:linear-gradient(135deg,#1f3fa8 0%,#5b2fc4 100%);color:#fff;box-shadow:var(--sh)}
+.hero h2{font-size:1.5rem;margin:6px 0 8px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px 16px;opacity:.92;font-size:.95rem}
+.hero .cd{font:700 2rem/1.1 var(--fd);text-align:right}
+.hero small{opacity:.85;display:block;text-align:right;margin-bottom:12px}
+.hero .btn{background:#fff;color:#1b2a7a;border:0}
+.hero .btn.ghost{background:rgba(255,255,255,.16);color:#fff}
+.hero .lab{font-size:.85rem;opacity:.85;font-weight:600}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quick .btn{justify-content:flex-start;height:auto;min-height:46px;white-space:normal;text-align:left}
+.filters{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:10px;margin-bottom:16px}
+.filters.f3{grid-template-columns:2fr 1fr 1fr}
+.item{display:flex;gap:14px;align-items:flex-start;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--card);margin-bottom:10px}
+.item.pinned{border-color:color-mix(in srgb,var(--acc) 55%,transparent)}
+.item .body{flex:1;min-width:0}
+.item h3{margin-bottom:2px;overflow-wrap:anywhere}
+.item p.d{color:var(--mute);margin:4px 0 8px;overflow-wrap:anywhere}
+.item .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.item .row2{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.ext{width:48px;height:56px;border-radius:8px;background:var(--card2);display:grid;place-items:center;font:700 .74rem var(--fd);text-transform:uppercase;color:var(--acc);flex:none;border:1px solid var(--line)}
+.dblock{width:60px;text-align:center;border-radius:12px;background:var(--card2);padding:9px 0;flex:none;border:1px solid var(--line)}
+.dblock b{display:block;font:700 1.4rem/1 var(--fd)}.dblock span{font-size:.78rem;color:var(--mute)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{font-size:.78rem;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid var(--line);color:var(--mute);background:var(--bg2)}
+.badge{font-size:.78rem;font-weight:700;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.badge.ok{color:var(--ok);background:color-mix(in srgb,var(--ok) 15%,transparent)}
+.badge.bad{color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.badge.warn{color:var(--warn);background:color-mix(in srgb,var(--warn) 17%,transparent)}
+.badge.info{color:var(--acc);background:color-mix(in srgb,var(--acc) 16%,transparent)}
+.badge.mute{color:var(--mute);background:var(--bg2)}
+.info{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;border:1px solid color-mix(in srgb,var(--acc) 35%,transparent);background:color-mix(in srgb,var(--acc) 9%,transparent);color:var(--text);font-size:.92rem;margin-bottom:16px}
+.info .ic{color:var(--acc);margin-top:2px}
+.info.warn{border-color:color-mix(in srgb,var(--warn) 45%,transparent);background:color-mix(in srgb,var(--warn) 10%,transparent)}
+.info.warn .ic{color:var(--warn)}
+.empty{text-align:center;padding:40px 20px;border:1px dashed var(--line);border-radius:14px;color:var(--mute);display:grid;gap:8px;justify-items:center}
+.empty h3{color:var(--text)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px;overflow-x:auto}
+.tabs button{background:none;border:0;padding:10px 14px;cursor:pointer;color:var(--mute);font-weight:600;border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button[aria-selected=true]{color:var(--text);border-color:var(--acc)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.tbl{width:100%;border-collapse:collapse;min-width:560px}
+.tbl th{text-align:left;font-size:.82rem;color:var(--mute);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl input{min-height:36px;padding:5px 8px;max-width:110px}
+.av{width:36px;height:36px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font:700 .82rem var(--fd);overflow:hidden;flex:none}
+.av img{width:100%;height:100%;object-fit:cover}
+.av.lg{width:92px;height:92px;font-size:1.6rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;padding:3px;background:var(--inp);gap:2px}
+.seg button{border:0;background:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;color:var(--mute)}
+.seg button[aria-pressed=true]{background:var(--card2);color:var(--text)}
+.stu{display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid var(--line)}
+.stu:last-child{border-bottom:0}
+.stu label{display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;min-width:0}
+.stu small{display:block;color:var(--mute)}
+.stu .av{width:30px;height:30px;font-size:.72rem}
+.list-box{max-height:240px;overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--inp)}
+.preview{padding:12px 14px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere}
+.kv{display:grid;grid-template-columns:minmax(120px,200px) 1fr auto;gap:10px 14px;align-items:center}
+.kv>div{padding:10px 0;border-bottom:1px solid var(--line)}
+pre.code{margin:0;padding:14px;border-radius:12px;background:var(--inp);border:1px solid var(--line);overflow:auto;max-height:280px;font:13px/1.5 ui-monospace,Consolas,'Cascadia Mono',monospace;white-space:pre}
+.steps{padding-left:20px;display:grid;gap:8px}
+.bar{height:8px;border-radius:5px;background:var(--bg2);overflow:hidden}.bar i{display:block;height:100%;background:var(--grad)}
+.photo{display:flex;gap:16px;align-items:center;margin-bottom:16px}
+
+/* auth */
+.auth{min-height:100vh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+.auth-l{padding:48px;display:flex;flex-direction:column;justify-content:space-between;background:var(--bg2);border-right:1px solid var(--line);gap:36px}
+.auth-l h1{font-size:2.3rem;line-height:1.15;max-width:15em}
+.auth-l ul{list-style:none;padding:0;margin:0;display:grid;gap:14px}
+.auth-l li{display:flex;gap:12px;align-items:flex-start;color:var(--mute)}
+.auth-l li b{color:var(--text);display:block}
+.auth-l li .ic{color:var(--acc);margin-top:3px}
+.auth-r{display:grid;place-items:center;padding:28px;position:relative}
+.auth-card{width:min(440px,100%)}
+.auth-card h2{font-size:1.4rem;margin-bottom:4px}
+.auth-tools{position:absolute;top:16px;right:16px}
+.demo-box{margin-top:16px;padding:14px;border-radius:12px;border:1px dashed var(--line);display:grid;gap:10px}
+
+/* modal + toast */
+#modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:16px}
+.scrim{position:absolute;inset:0;background:rgba(3,7,25,.66)}
+.dlg{position:relative;width:min(580px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh);animation:pop .16s ease-out}
+.dlg.wide{width:min(860px,100%)}
+.dlg>header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.dlg-body{padding:18px;overflow:auto}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+#toasts{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:200;display:grid;gap:8px;width:min(440px,calc(100vw - 24px))}
+.toast{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);box-shadow:var(--sh);animation:pop .18s ease-out}
+.toast.ok .ic{color:var(--ok)}.toast.err{border-color:color-mix(in srgb,var(--bad) 55%,transparent)}.toast.err .ic{color:var(--bad)}
+.toast.out{opacity:0;transition:opacity .35s}
+
+@media(max-width:1000px){.filters{grid-template-columns:1fr 1fr}.filters>:first-child{grid-column:1/-1}.cols{grid-template-columns:1fr}.strip{grid-template-columns:1fr 1fr}.strip>div:nth-child(2){border-right:0}.strip>div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .side{position:fixed;left:0;top:0;bottom:0;width:276px;transform:translateX(-102%);transition:transform .2s;z-index:50;height:100%}
+  .nav-open .side{transform:none;box-shadow:var(--sh)}
+  .nav-open .scrim-nav{display:block;position:fixed;inset:0;background:rgba(3,7,25,.55);z-index:40}
+  .hamb{display:inline-grid}.top{padding:10px 14px}.view{padding:18px 14px 50px}
+  .auth{grid-template-columns:1fr}.auth-l{padding:28px 22px;border-right:0;border-bottom:1px solid var(--line)}.auth-l h1{font-size:1.6rem}.auth-l ul{display:none}
+  .pill{display:none}
+}
+@media(max-width:620px){
+  .g2,.g3,.quick{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.hero .cd,.hero small{text-align:left}
+  .item{flex-wrap:wrap}.item .acts{justify-content:flex-start;width:100%}.kv{grid-template-columns:1fr}.kv>div{border:0;padding:2px 0}
+  .filters{grid-template-columns:1fr}.strip b{font-size:1.3rem}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal" hidden></div>
+<div id="toasts" aria-live="polite"></div>
+<noscript><p style="padding:24px">CompEdu needs JavaScript. Please open this file in Chrome.</p></noscript>
+<script>
+'use strict';
+/* =====================================================================
+   CLOUD SETTINGS  (leave both empty to run the offline demo)
+   To go live: paste your Supabase Project URL and the "anon" (public) key
+   between the quotes, save the file, and upload it again.
+   NEVER paste a service_role or secret key here.
+   ===================================================================== */
+const CLOUD={url:'https://uzdkybjhjeqwkzhqieif.supabase.co',key:'sb_publishable_iM-RPTQIK5dmsLCPtezm-g_b1eIYb_a'};
+const jwtRole=k=>{try{return JSON.parse(atob(String(k).split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role}catch(e){return ''}};
+const CLOUD_BAD=!!(CLOUD.key&&(String(CLOUD.key).startsWith('sb_secret_')||jwtRole(CLOUD.key)==='service_role'));
+const CLOUD_ON=!!(CLOUD.url&&CLOUD.key)&&!CLOUD_BAD&&/^https:\/\/[^\s/]+\/?$/.test(CLOUD.url);
+/* ============ utilities ============ */
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nl2br=s=>esc(s).replace(/\n/g,'<br>');
+const uid=p=>p+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
+const safeUrl=u=>{try{const x=new URL(String(u||'').trim());return /^https?:$/.test(x.protocol)?x.href:''}catch(e){return ''}};
+const IC={
+home:'<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+notes:'<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h7"/>',
+live:'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/>',
+room:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+exam:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9z"/><path d="m9 14 2 2 4-4"/>',
+user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+bell:'<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
+search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/>',
+moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',
+edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
+trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+download:'<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
+upload:'<path d="M12 16V5M7 9l5-5 5 5M5 20h14"/>',
+x:'<path d="M6 6l12 12M18 6 6 18"/>',
+menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+pin:'<path d="M9 4h6l-1 6 3 3H7l3-3z"/><path d="M12 13v7"/>',
+link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>',
+check:'<path d="m5 12 5 5L20 7"/>',
+wa:'<path d="M20 12a8 8 0 0 1-11.8 7L4 20l1.2-4A8 8 0 1 1 20 12z"/><path d="M9 9c0 3 3 6 6 6l1-2-2-1-1 1c-1 0-2-1-2-2l1-1-1-2z"/>',
+logout:'<path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/>',
+file:'<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/>',
+info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
+send:'<path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/>',
+clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/><path d="M16 5a3.5 3.5 0 0 1 0 7M18 15c2.5.7 4 2.3 4 5"/>',
+back:'<path d="M15 5l-7 7 7 7"/>',
+mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>',
+warn:'<path d="M12 3 2 20h20z"/><path d="M12 10v5M12 17.5v.5"/>',
+camera:'<path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/>',
+ext:'<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>',
+code:'<path d="m8 8-5 4 5 4M16 8l5 4-5 4M14 5l-4 14"/>'};
+const icon=(n,s=18)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]||''}</svg>`;
+const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const KEY='compedu_demo_v1',SKEY='compedu_session_v1',TKEY='compedu_theme',SBKEY='compedu_supabase';
+const EXTS=['py','ppt','pptx','doc','docx','pdf','txt','zip'],MAXF=20*1024*1024,MAXS=10*1024*1024;
+const VIEWS=[['home','Home','home'],['notes','Notes','notes'],['live','Live Classes','live'],['classroom','Classroom','room'],['exam','Exam','exam'],['account','Account','user']];
+const extOf=n=>((String(n).split('.').pop())||'').toLowerCase();
+const fmtSize=b=>b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(1)+' MB';
+const pad=n=>String(n).padStart(2,'0');
+const dstr=(off=0)=>{const x=new Date();x.setDate(x.getDate()+off);return x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate())};
+const parseDT=(d,t)=>new Date(d+'T'+(t||'00:00'));
+const fmtDate=d=>d?new Date(d+'T00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'';
+const fmtTime=t=>{if(!t)return '';const [h,m]=t.split(':').map(Number);return ((h%12)||12)+':'+pad(m)+' '+(h>=12?'PM':'AM')};
+const fmtStamp=ts=>new Date(ts).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
+const initials=n=>(String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('')||'?').toUpperCase();
+const csvCell=v=>{let s=String(v??'');if(/^[=+\-@\t\r]/.test(s))s="'"+s;return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+const slug=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'file';
+function setPath(p,v){const [a,b]=p.split('.');ui[a][b]=v}
+
+/* ============ browser file store (IndexedDB) ============ */
+const idb={_:null,open(){return this._||(this._=new Promise((res,rej)=>{if(!window.indexedDB)return rej(new Error('IndexedDB is not available in this browser.'));const r=indexedDB.open('compedu_files',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}))},
+ async tx(mode,fn){const d=await this.open();return new Promise((res,rej)=>{const t=d.transaction('f',mode);const rq=fn(t.objectStore('f'));t.oncomplete=()=>res(rq&&rq.result);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})},
+ put(k,b){return this.tx('readwrite',s=>s.put(b,k))},get(k){return this.tx('readonly',s=>s.get(k))},del(k){return this.tx('readwrite',s=>s.delete(k)).catch(()=>{})},clear(){return this.tx('readwrite',s=>s.clear()).catch(()=>{})}};
+
+/* ============ data ============ */
+function seed(){
+  const sample1='# CompEdu sample file (offline demo)\n# Replace this with your own notes.\n\ndef greet(name):\n    return f"Hello, {name}! Welcome to CompEdu."\n\nprint(greet("student"))\n';
+  const sample2='Data Structures – reading list (sample)\n\n1. Arrays and linked lists\n2. Stacks and queues\n3. Trees and traversals\n4. Graphs: BFS and DFS\n\nThis is a sample resource generated inside your browser.\n';
+  const col='Demo Engineering College';
+  const stu=(i,name,batch,sem,roll,dob)=>({id:'u_s'+i,role:'student',demo:true,name,email:name.split(' ')[0].toLowerCase()+'@demo.compedu',mobile:'900000000'+i,dob,batch,semester:String(sem),year:'2026-27',roll:String(roll),category:'',college:col});
+  return {v:1,
+   settings:{country:'91',batches:['SE-A','SE-B','TE-A','BE-A'],academicYear:'2026-27'},
+   users:[{id:'u_t',role:'teacher',demo:true,name:'Demo Teacher',email:'teacher@demo.compedu',mobile:'9000000000',college:col},
+    stu(1,'Aarav Patil','SE-A',3,101,'2005-03-14'),stu(2,'Isha Deshmukh','SE-A',3,102,'2005-07-02'),
+    stu(3,'Rohan Jadhav','SE-B',3,201,'2005-11-21'),stu(4,'Sneha Kulkarni','SE-B',3,202,'2005-01-09'),
+    stu(5,'Omkar Shinde','TE-A',5,301,'2004-05-30'),stu(6,'Priya More','TE-A',5,302,'2004-09-17')],
+   notes:[
+    {id:'n_1',title:'Python starter script',desc:'Sample .py file generated in your browser. Delete it when you add real notes.',subject:'Python Programming',batch:'SE-A',sem:'3',fileName:'hello_compedu.py',size:new Blob([sample1]).size,ext:'py',mime:'text/x-python',sample:sample1,ts:Date.now()-86400000*3},
+    {id:'n_2',title:'DSA reading list',desc:'Sample text resource.',subject:'Data Structures',batch:'All',sem:'3',fileName:'dsa_reading_list.txt',size:new Blob([sample2]).size,ext:'txt',mime:'text/plain',sample:sample2,ts:Date.now()-86400000*5}],
+   classes:[
+    {id:'c_1',title:'Binary trees and traversals',subject:'Data Structures',batch:'SE-A',date:dstr(1),time:'11:00',dur:60,link:'https://meet.google.com/sample-link-demo',desc:'Sample link – replace it with your own Google Meet link.',recording:''},
+    {id:'c_2',title:'SQL joins workshop',subject:'DBMS',batch:'SE-B',date:dstr(2),time:'15:00',dur:90,link:'https://meet.google.com/sample-link-demo',desc:'Bring a laptop with a SQL client installed.',recording:''},
+    {id:'c_3',title:'Process scheduling',subject:'Operating Systems',batch:'TE-A',date:dstr(4),time:'10:00',dur:60,link:'https://meet.google.com/sample-link-demo',desc:'',recording:''},
+    {id:'c_4',title:'Functions in Python',subject:'Python Programming',batch:'SE-A',date:dstr(-3),time:'11:00',dur:60,link:'https://meet.google.com/sample-link-demo',desc:'Covered default arguments and lambda functions.',recording:''}],
+   posts:[
+    {id:'p_1',kind:'announcement',title:'Welcome to CompEdu',body:'Notes, live classes, assignments and results for our batch are in one place.\nCheck the Classroom tab for new posts.',subject:'',batch:'All',pinned:true,ts:Date.now()-86400000*4},
+    {id:'p_2',kind:'announcement',title:'Lab journal submission',body:'Bring the completed lab journal to the next practical.',subject:'Data Structures',batch:'SE-A',pinned:false,ts:Date.now()-86400000*1},
+    {id:'p_3',kind:'resource',title:'Python documentation',body:'Official tutorial and library reference.',url:'https://docs.python.org/3/',subject:'Python Programming',batch:'All',pinned:false,ts:Date.now()-86400000*6},
+    {id:'p_4',kind:'resource',title:'VisuAlgo – algorithm animations',body:'Step-by-step animations for sorting, trees and graphs.',url:'https://visualgo.net/',subject:'Data Structures',batch:'All',pinned:false,ts:Date.now()-86400000*2}],
+   assigns:[
+    {id:'a_1',title:'Implement a stack using an array',desc:'Write push, pop, peek and isEmpty. Submit your code and a short note on time complexity.',subject:'Data Structures',batch:'SE-A',due:dstr(5),url:'',pinned:false,ts:Date.now()-86400000*1},
+    {id:'a_2',title:'ER diagram: library system',desc:'Draw the ER diagram and list the tables you would create.',subject:'DBMS',batch:'SE-B',due:dstr(8),url:'',pinned:false,ts:Date.now()-86400000*2}],
+   subs:[],
+   exams:[
+    {id:'e_1',title:'Unit Test 1',subject:'Data Structures',batch:'SE-A',date:dstr(-10),total:25,pass:10,published:true,marks:{u_s1:21,u_s2:8}},
+    {id:'e_2',title:'Mid-semester test',subject:'DBMS',batch:'SE-B',date:dstr(-4),total:30,pass:12,published:false,marks:{u_s3:25,u_s4:11}}],
+   notifs:[]};
+}
+function emptyDb(){return {v:1,settings:{country:'91',batches:['SE-A','SE-B','TE-A','BE-A'],academicYear:'2026-27'},users:[],notes:[],classes:[],posts:[],assigns:[],subs:[],exams:[],notifs:[]}}
+let db=load();
+function load(){if(CLOUD_ON)return emptyDb();const r=LS.get(KEY);if(r){try{const d=JSON.parse(r);if(d&&Array.isArray(d.users)){d.settings=Object.assign({country:'91',batches:['SE-A','SE-B','TE-A','BE-A'],academicYear:'2026-27'},d.settings);['notes','classes','posts','assigns','subs','exams','notifs'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[]});return d}}catch(e){}}return seed()}
+function save(){if(CLOUD_ON){scheduleSync();return}if(!LS.set(KEY,JSON.stringify(db)))toast('Browser storage is full or blocked. Export a backup from Account and remove old items.','err')}
+if(!CLOUD_ON&&!LS.get(KEY))save();
+let ui={view:'home',nav:false,notes:{q:'',subject:'',batch:'',sem:'',type:''},live:{q:'',batch:'',tab:'up'},room:{tab:'ann',q:'',batch:'',subject:''},exam:{sel:null},auth:{tab:'login',role:'student'},photo:null};
+const sess=()=>CLOUD_ON?cloud.uid():LS.get(SKEY);
+const me=()=>db.users.find(u=>u.id===sess());
+const students=()=>db.users.filter(u=>u.role==='student');
+const teacher=()=>db.users.find(u=>u.role==='teacher');
+const vis=(it,u)=>u.role==='teacher'||it.batch==='All'||it.batch===u.batch;
+const subjects=()=>[...new Set(['Data Structures','DBMS','Operating Systems','Computer Networks','Python Programming',...db.notes.map(x=>x.subject),...db.classes.map(x=>x.subject),...db.assigns.map(x=>x.subject),...db.exams.map(x=>x.subject),...db.posts.map(x=>x.subject)].filter(Boolean))].sort();
+const byName=id=>(db.users.find(u=>u.id===id)||{name:'Former student'}).name;
+function pushNotif(to,title,body,view){if(!to.length)return;db.notifs.push({id:uid('t_'),to,title,body,view:view||'home',ts:Date.now(),readBy:[]});save()}
+const myNotifs=u=>db.notifs.filter(n=>n.to.includes(u.id)).sort((a,b)=>b.ts-a.ts);
+
+/* ============ small ui helpers ============ */
+const chip=(t,c='')=>`<span class="chip ${c}">${esc(t)}</span>`;
+const badge=(t,c)=>`<span class="badge ${c}">${esc(t)}</span>`;
+const empty=(ic,title,text,btn='')=>`<div class="empty">${icon(ic,28)}<h3>${esc(title)}</h3><p>${esc(text)}</p>${btn}</div>`;
+const opts=(arr,sel,ph)=>(ph!==undefined?`<option value="">${esc(ph)}</option>`:'')+arr.map(v=>{const [val,lab]=Array.isArray(v)?v:[v,v];return `<option value="${esc(val)}" ${String(val)===String(sel)?'selected':''}>${esc(lab)}</option>`}).join('');
+const batchOpts=(sel,all)=>opts([...(all?[['All','All batches']]:[]),...db.settings.batches],sel);
+const semOpts=sel=>opts([1,2,3,4,5,6,7,8].map(n=>[String(n),'Semester '+n]),sel);
+const avatar=(u,cls='')=>`<span class="av ${cls}">${u&&u.photo?`<img src="${esc(u.photo)}" alt="">`:esc(initials(u&&u.name))}</span>`;
+const batchLabel=b=>b==='All'?'All batches':b;
+function toast(msg,type='info'){const el=document.createElement('div');el.className='toast '+type;el.innerHTML=icon(type==='ok'?'check':type==='err'?'warn':'info')+'<span>'+esc(msg)+'</span>';$('#toasts').appendChild(el);setTimeout(()=>el.classList.add('out'),4300);setTimeout(()=>el.remove(),4800)}
+let confirmCb=null,lastFocus=null;
+function modal(title,body,o={}){lastFocus=document.activeElement;const r=$('#modal');r.innerHTML=`<div class="scrim" data-act="close"></div><div class="dlg ${o.wide?'wide':''}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><header><h3>${esc(title)}</h3><button class="icon-btn" data-act="close" aria-label="Close">${icon('x')}</button></header><div class="dlg-body">${body}</div></div>`;r.hidden=false;document.body.classList.add('lock');const f=$('input:not([type=hidden]):not([type=checkbox]),textarea,select',r);if(f&&!o.nofocus)setTimeout(()=>f.focus(),30)}
+function closeModal(){const r=$('#modal');r.hidden=true;r.innerHTML='';document.body.classList.remove('lock');nf=null;imp=null;if(lastFocus&&lastFocus.focus)try{lastFocus.focus()}catch(e){}}
+function ask(msg,label,cb){confirmCb=cb;modal('Please confirm',`<p>${esc(msg)}</p><div class="actions"><button class="btn" data-act="close">Cancel</button><button class="btn danger" data-act="confirm-yes">${esc(label)}</button></div>`,{nofocus:true})}
+
+/* ============ theme + routing ============ */
+function setTheme(t){document.documentElement.dataset.theme=t;LS.set(TKEY,t)}
+setTheme(LS.get(TKEY)==='light'?'light':'dark');
+function go(v){if(location.hash==='#/'+v)route();else location.hash='#/'+v}
+function route(){const v=(location.hash.match(/#\/(\w+)/)||[])[1];ui.view=VIEWS.some(x=>x[0]===v)?v:'home';ui.nav=false;render();window.scrollTo(0,0)}
+window.addEventListener('hashchange',route);
+
+/* ============ auth ============ */
+function renderAuth(){
+  if(CLOUD_ON)return renderAuthCloud();
+  const a=ui.auth,isLogin=a.tab==='login';
+  $('#app').innerHTML=`<div class="auth"><section class="auth-l"><div class="brand"><span class="logo">${icon('code',20)}</span>CompEdu</div>
+  <div><h1>Notes, live classes and results for your Computer Engineering batch.</h1></div>
+  <ul><li>${icon('notes',20)}<span><b>Notes</b>.py, slides, PDFs and zips, filtered by subject and semester</span></li>
+  <li>${icon('live',20)}<span><b>Live classes</b>Google Meet links with dates, times and recordings</span></li>
+  <li>${icon('room',20)}<span><b>Classroom</b>Announcements, assignments, resources and submissions</span></li>
+  <li>${icon('exam',20)}<span><b>Exams</b>Marks, CSV import and export, published results</span></li></ul></section>
+  <section class="auth-r"><div class="auth-tools"><button class="icon-btn" data-act="theme" aria-label="Switch light or dark mode">${icon(document.documentElement.dataset.theme==='dark'?'sun':'moon')}</button></div>
+  <div class="auth-card card"><div class="tabs" role="tablist"><button role="tab" aria-selected="${isLogin}" data-act="auth-tab" data-t="login">Log in</button><button role="tab" aria-selected="${!isLogin}" data-act="auth-tab" data-t="signup">Student sign up</button></div>
+  ${isLogin?`<h2>Welcome back</h2><p class="sub" style="margin-bottom:16px">Log in as a teacher or a student.</p>
+  <form class="stack" data-form="login"><div class="seg" role="group" aria-label="Role"><button type="button" data-act="role" data-r="student" aria-pressed="${a.role==='student'}">Student</button><button type="button" data-act="role" data-r="teacher" aria-pressed="${a.role==='teacher'}">Teacher</button></div>
+  <label class="f">Email or mobile number<input name="ident" autocomplete="username" required placeholder="${a.role==='teacher'?'teacher@demo.compedu':'aarav@demo.compedu'}"></label>
+  <label class="f">Password<input name="pw" type="password" autocomplete="current-password" placeholder="Not checked in demo mode"></label>
+  <button class="btn pri" type="submit">Log in</button></form>
+  <div class="demo-box"><div class="info warn" style="margin:0">${icon('warn')}<span><b>Offline demo.</b> Passwords are neither checked nor stored, so anyone who opens this file can pick either role. Real passwords need Supabase Auth.</span></div>
+  <div class="chips"><button class="btn sm" data-act="demo-login" data-id="u_t">Demo teacher</button><button class="btn sm" data-act="demo-login" data-id="u_s1">Demo student (SE-A)</button><button class="btn sm" data-act="demo-login" data-id="u_s3">Demo student (SE-B)</button></div></div>`
+  :`<h2>Create a student profile</h2><p class="sub" style="margin-bottom:16px">Your profile is saved in this browser only.</p>
+  <form class="stack" data-form="signup"><label class="f">Full name<input name="name" required autocomplete="name"></label>
+  <label class="f">Email or mobile number<input name="ident" required autocomplete="username" placeholder="you@example.com or 9876543210"></label>
+  <label class="f">Roll number<input name="roll" required></label>
+  <label class="f">Password<input name="pw" type="password" autocomplete="new-password" minlength="6" placeholder="Not saved in demo mode"><small>Demo only: this password is discarded. Phone or email verification (OTP) is not available offline.</small></label>
+  <button class="btn pri" type="submit">Create profile</button></form>`}</div></section></div>`;
+}
+function login(role,ident){
+  const id=String(ident||'').trim().toLowerCase(),mob=id.replace(/\D/g,'').slice(-10);
+  const u=db.users.find(x=>x.role===role&&((x.email||'').toLowerCase()===id||(mob.length===10&&(x.mobile||'').replace(/\D/g,'').slice(-10)===mob)));
+  if(!u)return toast(`No ${role} profile matches that email or mobile number in this browser.${role==='student'?' Use Student sign up first.':''}`,'err');
+  LS.set(SKEY,u.id);go('home');if(location.hash==='#/home')route()
+}
+function logout(){if(CLOUD_ON)return cloudLogout();LS.del(SKEY);ui.nav=false;history.replaceState(null,'',location.pathname+location.search);render()}
+
+/* ============ shell ============ */
+function cdText(ts){const ms=ts-Date.now();if(ms<=0)return 'Live now';const m=Math.round(ms/60000);if(m<60)return 'Starts in '+m+' min';const h=Math.floor(m/60);if(h<24)return 'Starts in '+h+' h '+(m%60)+' min';const d=Math.floor(h/24);return 'Starts in '+d+' day'+(d>1?'s':'')+' '+(h%24)+' h'}
+function render(){
+  if(CLOUD_ON&&!cloud.ready){if(cloud.loading)$('#app').innerHTML='<div class="auth" style="grid-template-columns:1fr"><div class="auth-r"><p class="mute">Loading your classroom…</p></div></div>';else renderAuth();return}
+  const u=me();if(!u){$('#app').innerHTML='';renderAuth();return}
+  const nt=myNotifs(u),unread=nt.filter(n=>!n.readBy.includes(u.id)).length;
+  const t=u.role==='teacher';
+  $('#app').innerHTML=`<div class="layout ${ui.nav?'nav-open':''}"><aside class="side" id="side" aria-label="Main navigation"><div class="brand"><span class="logo">${icon('code',20)}</span>CompEdu</div>
+  <nav class="nav">${VIEWS.map(([k,l,i])=>`<a href="#/${k}" ${ui.view===k?'aria-current="page"':''}>${icon(i,20)}${l}</a>`).join('')}</nav>
+  <div class="side-foot"><div class="me">${avatar(u)}<div style="min-width:0"><b>${esc(u.name)}</b><small>${t?'Teacher':'Student · '+esc(u.batch||'')}</small></div></div><button class="btn" data-act="logout">${icon('logout')}Log out</button></div></aside>
+  <div class="scrim-nav" data-act="nav"></div>
+  <div class="main"><header class="top"><button class="icon-btn hamb" data-act="nav" aria-label="Open menu">${icon('menu')}</button>
+   <div class="gs dd-wrap">${icon('search')}<input id="gs" type="search" placeholder="Search notes, classes, posts…" aria-label="Search" autocomplete="off"><div class="dd" id="gs-res" hidden></div></div>
+   <span class="sp"></span><span class="pill ${CLOUD_ON?'ok':''}" id="pill" title="${CLOUD_ON?'Data is saved to your Supabase project':'Data is stored only in this browser'}">${CLOUD_ON?'Cloud':'Offline demo'}</span>
+   <div class="dd-wrap"><button class="icon-btn" data-act="dd" data-t="bell" aria-label="Notifications">${icon('bell')}${unread?`<span class="dot">${unread}</span>`:''}</button>
+    <div class="dd" id="dd-bell" hidden><h4>Notifications</h4>${nt.length?nt.slice(0,12).map(n=>`<button class="it ${n.readBy.includes(u.id)?'':'unread'}" data-act="notif-go" data-id="${n.id}"><span><b>${esc(n.title)}</b><span>${esc(n.body)}</span><small>${fmtStamp(n.ts)}</small></span></button>`).join('')+`<button class="it" data-act="notif-read"><span><b>Mark all as read</b></span></button>`:'<div class="none">Nothing new yet.</div>'}</div></div>
+   <button class="icon-btn" data-act="theme" aria-label="Switch light or dark mode">${icon(document.documentElement.dataset.theme==='dark'?'sun':'moon')}</button></header>
+  <main id="view" class="view" tabindex="-1">${VIEW[ui.view](u)}</main></div></div>`;
+  document.title=VIEWS.find(v=>v[0]===ui.view)[1]+' – CompEdu';if(typeof afterRender==='function')afterRender();
+}
+function refreshList(){const el=$('#list');const f=LISTS[ui.view];if(el&&f)el.innerHTML=f(me())}
+function globalSearch(q){
+  const u=me(),r=$('#gs-res');q=q.trim().toLowerCase();if(!q){r.hidden=true;return}
+  const m=(...a)=>a.join(' ').toLowerCase().includes(q),out=[];
+  db.notes.filter(n=>vis(n,u)&&m(n.title,n.desc,n.subject,n.fileName)).forEach(n=>out.push(['Note',n.title,n.subject,'notes']));
+  db.classes.filter(c=>vis(c,u)&&m(c.title,c.subject,c.desc)).forEach(c=>out.push(['Live class',c.title,fmtDate(c.date),'live']));
+  db.posts.filter(p=>vis(p,u)&&m(p.title,p.body,p.subject)).forEach(p=>out.push([p.kind==='resource'?'Resource':'Announcement',p.title,p.subject||'',p.kind==='resource'?'classroom':'classroom']));
+  db.assigns.filter(a=>vis(a,u)&&m(a.title,a.desc,a.subject)).forEach(a=>out.push(['Assignment',a.title,'Due '+fmtDate(a.due),'classroom']));
+  db.exams.filter(e=>vis(e,u)&&(u.role==='teacher'||e.published)&&m(e.title,e.subject)).forEach(e=>out.push(['Exam',e.title,e.subject,'exam']));
+  r.innerHTML=out.length?out.slice(0,8).map(x=>`<button class="it" data-act="gs-go" data-v="${x[3]}"><span><b>${esc(x[1])}</b><small>${esc(x[0])}${x[2]?' · '+esc(x[2]):''}</small></span></button>`).join(''):'<div class="none">No matches.</div>';
+  r.hidden=false;
+}
+
+/* ============ notify (WhatsApp click-to-chat + in-app + email draft) ============ */
+let nf=null,imp=null;
+const personal=(msg,s)=>msg.replace(/\{name\}/gi,(s.name||'').split(' ')[0]).replace(/\{batch\}/gi,s.batch||'');
+function waNum(m){let d=String(m||'').replace(/\D/g,'').replace(/^0+/,'');if(!d)return '';if(d.length===10)d=db.settings.country+d;return d.length>=11&&d.length<=15?d:''}
+const waUrl=(s,msg)=>'https://wa.me/'+waNum(s.mobile)+'?text='+encodeURIComponent(personal(msg,s));
+function nfApply(){const all=students();if(nf.mode==='all')nf.sel=new Set(all.map(s=>s.id));else if(nf.mode==='batch')nf.sel=new Set(all.filter(s=>s.batch===nf.batch).map(s=>s.id))}
+function openNotify(o){
+  const b=o.batch&&o.batch!=='All'?o.batch:'';
+  nf={title:o.title||'Update',msg:o.msg||'',mode:b?'batch':'all',batch:b||db.settings.batches[0],sel:new Set(),opened:new Set(),view:o.view||'home'};nfApply();
+  modal('Notify students',`<div class="info">${icon('info')}<span>WhatsApp opens one chat at a time with your message ready. You press Send in WhatsApp yourself, because automatic bulk sending needs a paid WhatsApp Business plan. In-app and email-draft options are free alternatives.</span></div>
+  <div class="stack"><div><div class="seg" role="group" aria-label="Recipients" id="nf-modes"></div></div>
+  <label class="f" id="nf-batchwrap">Batch<select data-nf="batch">${opts(db.settings.batches,nf.batch)}</select></label>
+  <div><div class="chips" style="justify-content:space-between;margin-bottom:6px"><b style="font-size:.9rem" id="nf-count"></b><button class="btn sm" data-act="nf-next">${icon('wa',16)}Open next unsent chat</button></div><div class="list-box" id="nf-list"></div></div>
+  <label class="f">Message<textarea data-nf="msg" rows="5"></textarea><small>Use {name} for the student's first name and {batch} for their batch.</small></label>
+  <div><div class="f" style="margin-bottom:6px">Preview</div><div class="preview" id="nf-prev"></div></div></div>
+  <div class="actions"><button class="btn" data-act="nf-copy">${icon('copy',16)}Copy message</button><button class="btn" data-act="nf-mail">${icon('mail',16)}Email draft</button><button class="btn pri" data-act="nf-inapp">${icon('bell',16)}Send in-app notification</button></div>`,{wide:true,nofocus:true});
+  $('[data-nf=msg]').value=nf.msg;nfDraw();
+}
+function nfDraw(){
+  if(!nf)return;const all=students();
+  $('#nf-modes').innerHTML=[['all','All students'],['batch','A batch'],['pick','Pick students']].map(([k,l])=>`<button type="button" data-act="nf-mode" data-m="${k}" aria-pressed="${nf.mode===k}">${l}</button>`).join('');
+  $('#nf-batchwrap').hidden=nf.mode!=='batch';
+  $('#nf-count').textContent=nf.sel.size+' of '+all.length+' students selected';
+  $('#nf-list').innerHTML=all.length?all.map(s=>{const ok=waNum(s.mobile),on=nf.sel.has(s.id);return `<div class="stu"><label>${avatar(s)}<input type="checkbox" data-nfs="${s.id}" ${on?'checked':''}><span><b>${esc(s.name)}</b><small>${esc(s.batch||'')} · ${s.mobile?esc(s.mobile):'no mobile number'}</small></span></label>${ok?`<button class="btn sm wa" data-act="nf-wa" data-id="${s.id}" ${on?'':'disabled'}>${nf.opened.has(s.id)?'Opened ✓':'WhatsApp'}</button>`:'<span class="badge mute">No valid number</span>'}</div>`}).join(''):'<div class="none" style="padding:14px">No students yet.</div>';
+  nfPrev();
+}
+function nfPrev(){const f=students().find(s=>nf.sel.has(s.id));$('#nf-prev').textContent=f?personal(nf.msg,f):(nf.msg||'Select at least one student to preview.');}
+function selected(){return students().filter(s=>nf.sel.has(s.id))}
+function copyText(t){return navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t).then(()=>true).catch(()=>false):Promise.resolve(false)}
+
+/* ============ event wiring ============ */
+const ACT={},FORMS={},CHG={};
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.dd-wrap'))$$('.dd').forEach(d=>d.hidden=true);
+  const b=e.target.closest('[data-act]');if(!b)return;const h=ACT[b.dataset.act];if(h)h(b,e);
+});
+document.addEventListener('submit',e=>{const f=e.target.closest('form[data-form]');if(!f)return;e.preventDefault();const h=FORMS[f.dataset.form];if(h)h(new FormData(f),f)});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset.f){setPath(t.dataset.f,t.value);refreshList()}
+  else if(t.id==='gs')globalSearch(t.value);
+  else if(t.dataset.nf==='msg'&&nf){nf.msg=t.value;nfPrev()}
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.nf==='batch'&&nf){nf.batch=t.value;nfApply();nfDraw()}
+  else if(t.dataset.nfs&&nf){t.checked?nf.sel.add(t.dataset.nfs):nf.sel.delete(t.dataset.nfs);if(nf.mode!=='pick')nf.mode='pick';nfDraw()}
+  else if(t.dataset.chg&&CHG[t.dataset.chg])CHG[t.dataset.chg](t);
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#modal').hidden)closeModal();else $$('.dd').forEach(d=>d.hidden=true)}});
+
+ACT.close=()=>closeModal();
+ACT['confirm-yes']=()=>{const cb=confirmCb;confirmCb=null;closeModal();cb&&cb()};
+ACT.nav=()=>{ui.nav=!ui.nav;$('.layout').classList.toggle('nav-open',ui.nav)};
+ACT.theme=()=>{setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');render()};
+ACT.logout=()=>logout();
+ACT['auth-tab']=b=>{ui.auth.tab=b.dataset.t;renderAuth()};
+ACT.role=b=>{ui.auth.role=b.dataset.r;renderAuth()};
+ACT['demo-login']=b=>{LS.set(SKEY,b.dataset.id);go('home');route()};
+ACT.dd=b=>{const d=$('#dd-'+b.dataset.t);const was=d.hidden;$$('.dd').forEach(x=>x.hidden=true);d.hidden=!was};
+ACT['notif-go']=b=>{const u=me(),n=db.notifs.find(x=>x.id===b.dataset.id);if(n){if(!n.readBy.includes(u.id))n.readBy.push(u.id);save();go(n.view||'home');route()}};
+ACT['notif-read']=()=>{const u=me();myNotifs(u).forEach(n=>{if(!n.readBy.includes(u.id))n.readBy.push(u.id)});save();render()};
+ACT['gs-go']=b=>{go(b.dataset.v);route()};
+ACT['nf-mode']=b=>{nf.mode=b.dataset.m;nfApply();nfDraw()};
+ACT['nf-wa']=b=>{const s=db.users.find(x=>x.id===b.dataset.id);if(!s||!nf)return;window.open(waUrl(s,nf.msg),'_blank','noopener');nf.opened.add(s.id);nfDraw()};
+ACT['nf-next']=()=>{const s=selected().find(x=>waNum(x.mobile)&&!nf.opened.has(x.id));if(!s)return toast('No unsent chats left in this selection.','info');window.open(waUrl(s,nf.msg),'_blank','noopener');nf.opened.add(s.id);nfDraw()};
+ACT['nf-inapp']=()=>{const s=selected();if(!s.length)return toast('Select at least one student.','err');if(!nf.msg.trim())return toast('Write a message first.','err');pushNotif(s.map(x=>x.id),nf.title,nf.msg.replace(/\{name\}/gi,'').replace(/\{batch\}/gi,'').replace(/\s+/g,' ').trim(),nf.view);closeModal();toast('In-app notification sent to '+s.length+' student'+(s.length>1?'s':'')+'. They see it next time they open CompEdu in this browser.','ok');render()};
+ACT['nf-mail']=()=>{const s=selected().filter(x=>x.email);if(!s.length)return toast('None of the selected students has an email address.','err');const url='mailto:?bcc='+encodeURIComponent(s.map(x=>x.email).join(','))+'&subject='+encodeURIComponent(nf.title)+'&body='+encodeURIComponent(nf.msg.replace(/\{name\}/gi,'student').replace(/\{batch\}/gi,''));if(url.length>1900)toast('Many recipients: your mail app may cut the list. Send in smaller groups if so.','info');location.href=url};
+ACT['nf-copy']=async()=>{const f=selected()[0];const ok=await copyText(f?personal(nf.msg,f):nf.msg);toast(ok?'Message copied.':'Copy is blocked in this browser. Select the text in the preview and copy it.',ok?'ok':'err')};
+
+/* ============ views ============ */
+const VIEW={},LISTS={};
+const pinCmp=(a,b)=>(+!!b.pinned)-(+!!a.pinned);
+const bf=(it,f)=>!f||it.batch===f||it.batch==='All';
+const fq=(path,ph,val)=>`<input type="search" data-f="${path}" value="${esc(val)}" placeholder="${esc(ph)}" aria-label="${esc(ph)}">`;
+const fs=(path,label,o)=>`<select data-f="${path}" aria-label="${esc(label)}">${o}</select>`;
+const rollSort=(a,b)=>String(a.roll||'').localeCompare(String(b.roll||''),undefined,{numeric:true});
+const examStudents=e=>students().filter(s=>e.batch==='All'||s.batch===e.batch).sort(rollSort);
+function calc(e,sid){const m=e.marks&&e.marks[sid];if(m===undefined||m===null||m==='')return {st:'pending'};if(m==='AB')return {st:'absent'};const pct=e.total?Math.round(m/e.total*10000)/100:0;return {m,pct,st:m>=e.pass?'pass':'fail'}}
+const stBadge=r=>r.st==='pass'?badge('Pass','ok'):r.st==='fail'?badge('Fail','bad'):r.st==='absent'?badge('Absent','warn'):badge('Pending','mute');
+const dueEnd=a=>parseDT(a.due,'23:59');
+const mySub=(a,u)=>db.subs.find(s=>s.aid===a.id&&s.sid===u.id);
+function dueBadge(a,u){const sub=u.role==='student'?mySub(a,u):null;if(sub)return badge(sub.late?'Submitted late':'Submitted','ok');const d=Math.ceil((dueEnd(a)-Date.now())/864e5);return d<0?badge('Overdue','bad'):d===0?badge('Due today','warn'):badge('Due in '+d+' day'+(d>1?'s':''),d<=2?'warn':'info')}
+function classHero(u){
+  const now=Date.now(),t=u.role==='teacher';
+  const x=db.classes.filter(c=>vis(c,u)).map(c=>({c,s:parseDT(c.date,c.time).getTime()})).filter(x=>x.s+(x.c.dur||60)*60000>now).sort((a,b)=>a.s-b.s)[0];
+  if(!x)return `<div class="card">${empty('live','No upcoming classes',t?'Schedule a class and students will see it here.':'Your teacher has not scheduled a class yet.',t?`<button class="btn pri" data-act="class-new">${icon('plus')}Schedule class</button>`:'')}</div>`;
+  const c=x.c,url=safeUrl(c.link);
+  return `<section class="hero"><div><span class="lab">Next live class</span><h2>${esc(c.title)}</h2><div class="meta"><span>${esc(c.subject)}</span><span>${esc(batchLabel(c.batch))}</span><span>${fmtDate(c.date)}, ${fmtTime(c.time)}</span>${c.resch?'<span>Rescheduled</span>':''}</div></div><div><div class="cd" data-cd="${x.s}">${cdText(x.s)}</div><small>&nbsp;</small>${url?`<a class="btn" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${icon('ext',16)}Open Meet link</a>`:'<span class="lab">No link added yet</span>'}</div></section>`;
+}
+VIEW.home=u=>{
+  const t=u.role==='teacher',h=new Date().getHours(),g=h<12?'Good morning':h<17?'Good afternoon':'Good evening',now=Date.now();
+  const up=db.classes.filter(c=>vis(c,u)&&parseDT(c.date,c.time).getTime()+(c.dur||60)*60000>now).length;
+  const asg=db.assigns.filter(a=>vis(a,u)).sort((a,b)=>a.due.localeCompare(b.due));
+  const open=asg.filter(a=>dueEnd(a)>=now);
+  let strip;
+  if(t)strip=[[students().length,'Students'],[db.notes.length,'Notes shared'],[up,'Upcoming classes'],[db.subs.filter(s=>!s.feedback).length,'Submissions to review']];
+  else strip=[[up,'Upcoming classes'],[open.filter(a=>!mySub(a,u)).length,'Assignments to submit'],[db.notes.filter(n=>vis(n,u)&&now-n.ts<6048e5).length,'New notes this week'],[db.exams.filter(e=>e.published&&vis(e,u)&&calc(e,u.id).st!=='pending').length,'Published results']];
+  const ann=db.posts.filter(p=>p.kind==='announcement'&&vis(p,u)).sort((a,b)=>pinCmp(a,b)||b.ts-a.ts).slice(0,3);
+  const right=t?`<section class="card"><h2>Quick actions</h2><div class="quick"><button class="btn" data-act="note-new">${icon('upload')}Upload note</button><button class="btn" data-act="class-new">${icon('live')}Schedule class</button><button class="btn" data-act="post-new" data-k="announcement">${icon('room')}Post announcement</button><button class="btn" data-act="asg-new">${icon('edit')}New assignment</button><button class="btn" data-act="exam-new">${icon('exam')}Create exam</button><button class="btn" data-act="notify-free">${icon('wa')}Notify students</button></div></section>`
+   :`<section class="card"><h2>Latest notes <a class="btn sm" href="#/notes">All notes</a></h2>${db.notes.filter(n=>vis(n,u)).sort((a,b)=>b.ts-a.ts).slice(0,3).map(n=>`<div class="stu"><span class="ext" style="width:38px;height:44px">${esc(n.ext)}</span><span style="flex:1;min-width:0"><b>${esc(n.title)}</b><small>${esc(n.subject)}</small></span><button class="btn sm" data-act="note-dl" data-id="${n.id}" aria-label="Download ${esc(n.title)}">${icon('download',16)}</button></div>`).join('')||'<p class="mute">No notes for your batch yet.</p>'}</section>`;
+  return `<div class="page-h"><div><h1>${g}, ${esc(u.name.split(' ')[0])}</h1><p class="sub">${t?'Here is what is happening across your batches.':(u.batch?'Batch '+esc(u.batch):'No batch assigned yet. Your teacher will set it, and until then you only see posts shared with everyone.')+(u.semester?' · Semester '+esc(u.semester):'')}</p></div></div>
+  ${classHero(u)}
+  <div class="strip">${strip.map(([n,l])=>`<div><b>${n}</b><span>${l}</span></div>`).join('')}</div>
+  <div class="cols"><div>
+   <section class="card"><h2>Announcements <a class="btn sm" href="#/classroom">Classroom</a></h2>${ann.map(p=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>${p.pinned?icon('pin',15)+' ':''}${esc(p.title)}</b><p class="mute" style="font-size:.92rem">${esc(p.body.length>140?p.body.slice(0,140)+'…':p.body)}</p></div>`).join('')||'<p class="mute">No announcements yet.</p>'}</section>
+   <section class="card"><h2>Assignments due soon</h2>${open.slice(0,4).map(a=>`<div class="stu"><span style="flex:1;min-width:0"><b>${esc(a.title)}</b><small>${esc(a.subject)} · ${esc(batchLabel(a.batch))} · due ${fmtDate(a.due)}</small></span>${dueBadge(a,u)}${t?'':`<a class="btn sm" href="#/classroom" data-act="room-asg">Open</a>`}</div>`).join('')||'<p class="mute">Nothing due.</p>'}</section>
+  </div><div>${right}
+   ${t?`<section class="card"><h2>${CLOUD_ON?'How this site works':'What is real in this demo'}</h2><p class="mute" style="font-size:.92rem">${CLOUD_ON?'Data and files are saved to your Supabase project. Students sign up themselves, then you set their batch in Account → Students. WhatsApp uses free click-to-chat links and Meet links are pasted by you.':'Everything is stored in this browser. WhatsApp uses free click-to-chat links, Meet links are pasted by you. Open Account → Setup guide to go live with Supabase.'}</p></section>`:`<section class="card"><h2>My results</h2>${db.exams.filter(e=>e.published&&vis(e,u)&&calc(e,u.id).st!=='pending').slice(0,3).map(e=>{const r=calc(e,u.id);return `<div class="stu"><span style="flex:1;min-width:0"><b>${esc(e.title)}</b><small>${esc(e.subject)}</small></span>${r.m!==undefined?`<b>${r.m}/${e.total}</b>`:''}${stBadge(r)}</div>`}).join('')||'<p class="mute">No published results yet.</p>'}</section>`}
+  </div></div>`;
+};
+
+/* notes */
+VIEW.notes=u=>{const t=u.role==='teacher',f=ui.notes;
+  return `<div class="page-h"><div><h1>Notes</h1><p class="sub">${t?'Upload study material for your batches.':'Study material shared by your teacher.'}</p></div>${t?`<button class="btn pri" data-act="note-new">${icon('upload')}Upload note</button>`:''}</div>
+  <div class="info">${icon('info')}<span>${CLOUD_ON?(t?'Files you upload are stored in your Supabase project. Students only see notes for their batch or for all batches.':'Notes shared with your batch appear here.'):(t?'Uploaded files stay in this browser only. Students on other devices cannot see them until you connect Supabase (Account → Setup guide).':'In this offline demo, notes are stored in this browser only.')}</span></div>
+  <div class="filters">${fq('notes.q','Search title, subject or file name',f.q)}${fs('notes.subject','Subject',opts(subjects(),f.subject,'All subjects'))}${fs('notes.batch','Batch',opts(db.settings.batches,f.batch,'All batches'))}${fs('notes.sem','Semester',opts([1,2,3,4,5,6,7,8].map(n=>[String(n),'Semester '+n]),f.sem,'All semesters'))}${fs('notes.type','File type',opts(EXTS.map(x=>[x,'.'+x]),f.type,'All types'))}</div>
+  <div id="list">${LISTS.notes(u)}</div>`};
+LISTS.notes=u=>{const f=ui.notes,q=f.q.toLowerCase(),t=u.role==='teacher';
+  const a=db.notes.filter(n=>vis(n,u)&&(!f.subject||n.subject===f.subject)&&bf(n,f.batch)&&(!f.sem||String(n.sem)===f.sem)&&(!f.type||n.ext===f.type)&&(!q||(n.title+' '+n.desc+' '+n.subject+' '+n.fileName).toLowerCase().includes(q))).sort((x,y)=>y.ts-x.ts);
+  if(!a.length)return empty('notes','No notes found',db.notes.length?'Try clearing a filter.':(t?'Upload your first file to get started.':'Your teacher has not shared notes yet.'),t&&!db.notes.length?`<button class="btn pri" data-act="note-new">${icon('upload')}Upload note</button>`:'');
+  return a.map(n=>`<article class="item"><span class="ext">${esc(n.ext)}</span><div class="body"><h3>${esc(n.title)}</h3>${n.desc?`<p class="d">${esc(n.desc)}</p>`:''}<div class="chips">${chip(n.subject)}${chip(batchLabel(n.batch))}${n.sem?chip('Semester '+n.sem):''}${n.sample?badge('Sample file','info'):''}</div><div class="row2 mute" style="font-size:.85rem"><span>${esc(n.fileName)}</span><span>${fmtSize(n.size)}</span><span>Added ${fmtStamp(n.ts)}</span></div></div><div class="acts"><button class="btn sm pri" data-act="note-dl" data-id="${n.id}">${icon('download',16)}Download</button>${t?`<button class="btn sm" data-act="note-notify" data-id="${n.id}">${icon('wa',16)}Notify</button><button class="btn sm" data-act="note-edit" data-id="${n.id}" aria-label="Edit">${icon('edit',16)}</button><button class="btn sm danger" data-act="note-del" data-id="${n.id}" aria-label="Delete">${icon('trash',16)}</button>`:''}</div></article>`).join('');
+};
+
+/* live classes */
+function clsState(c){const s=parseDT(c.date,c.time).getTime(),e=s+(c.dur||60)*60000,n=Date.now();return {s,st:n<s?'up':n<=e?'live':'past'}}
+VIEW.live=u=>{const t=u.role==='teacher',f=ui.live;
+  return `<div class="page-h"><div><h1>Live Classes</h1><p class="sub">Join with the Google Meet link your teacher shares.</p></div>${t?`<button class="btn pri" data-act="class-new">${icon('plus')}Schedule class</button>`:''}</div>
+  <div class="tabs" role="tablist"><button role="tab" aria-selected="${f.tab==='up'}" data-act="live-tab" data-t="up">Upcoming</button><button role="tab" aria-selected="${f.tab==='past'}" data-act="live-tab" data-t="past">Previous</button></div>
+  <div class="filters f3">${fq('live.q','Search title, subject or notes',f.q)}${t?fs('live.batch','Batch',opts(db.settings.batches,f.batch,'All batches')):'<span></span>'}<span></span></div>
+  <div id="list">${LISTS.live(u)}</div>`};
+LISTS.live=u=>{const f=ui.live,q=f.q.toLowerCase(),t=u.role==='teacher';
+  const rows=db.classes.filter(c=>vis(c,u)&&bf(c,f.batch)&&(!q||(c.title+' '+c.subject+' '+c.desc).toLowerCase().includes(q))).map(c=>Object.assign({c},clsState(c)));
+  const list=f.tab==='up'?rows.filter(r=>r.st!=='past').sort((a,b)=>a.s-b.s):rows.filter(r=>r.st==='past').sort((a,b)=>b.s-a.s);
+  if(!list.length)return empty('live',f.tab==='up'?'No upcoming classes':'No previous classes',f.tab==='up'?(t?'Schedule a class to see it here.':'Check back when your teacher schedules one.'):'Finished classes appear here.',f.tab==='up'&&t?`<button class="btn pri" data-act="class-new">${icon('plus')}Schedule class</button>`:'');
+  return list.map(({c,st})=>{const url=safeUrl(c.link),rec=safeUrl(c.recording);
+   return `<article class="item"><div class="dblock"><b>${Number(c.date.slice(8,10))}</b><span>${new Date(c.date+'T00:00').toLocaleDateString('en-IN',{month:'short'})}</span></div><div class="body"><h3>${esc(c.title)}</h3><div class="chips">${chip(c.subject)}${chip(batchLabel(c.batch))}${st==='live'?badge('Live now','ok'):''}${c.resch?badge('Rescheduled','warn'):''}</div><div class="row2"><span>${icon('clock',16)} ${fmtTime(c.time)} · ${c.dur||60} min</span><span class="mute">${esc(new Date(c.date+'T00:00').toLocaleDateString('en-IN',{weekday:'long'}))}</span></div>${c.resch&&c.prev?`<p class="mute" style="font-size:.88rem;margin-top:6px">Moved from ${fmtDate(c.prev.date)}, ${fmtTime(c.prev.time)}</p>`:''}${c.desc?`<p class="d" style="margin-top:6px">${esc(c.desc)}</p>`:''}${rec?`<p style="margin-top:6px"><a href="${esc(rec)}" target="_blank" rel="noopener noreferrer">${icon('link',15)} Recording or class notes</a></p>`:''}</div>
+   <div class="acts">${st!=='past'&&url?`<a class="btn sm pri" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${icon('ext',16)}Join</a>`:''}${st!=='past'?`<button class="btn sm" data-act="class-ics" data-id="${c.id}" title="Download a calendar file">${icon('cal',16)}Add to calendar</button>`:''}${t?`<button class="btn sm" data-act="class-notify" data-id="${c.id}">${icon('wa',16)}Notify</button>${st!=='past'?`<button class="btn sm" data-act="class-resch" data-id="${c.id}">${icon('clock',16)}Reschedule</button>`:''}<button class="btn sm" data-act="class-edit" data-id="${c.id}" aria-label="Edit">${icon('edit',16)}</button><button class="btn sm danger" data-act="class-del" data-id="${c.id}" aria-label="Delete">${icon('trash',16)}</button>`:''}</div></article>`}).join('');
+};
+
+/* classroom */
+VIEW.classroom=u=>{const t=u.role==='teacher',f=ui.room;
+  const lab={ann:'New announcement',asg:'New assignment',res:'Add resource'}[f.tab];
+  return `<div class="page-h"><div><h1>Classroom</h1><p class="sub">Announcements, assignments and resources for your batch.</p></div>${t?`<button class="btn pri" data-act="room-new">${icon('plus')}${lab}</button>`:''}</div>
+  <div class="tabs" role="tablist">${[['ann','Announcements'],['asg','Assignments'],['res','Resources']].map(([k,l])=>`<button role="tab" aria-selected="${f.tab===k}" data-act="room-tab" data-t="${k}">${l}</button>`).join('')}</div>
+  <div class="filters f3">${fq('room.q','Search this tab',f.q)}${t?fs('room.batch','Batch',opts(db.settings.batches,f.batch,'All batches')):'<span></span>'}${fs('room.subject','Subject',opts(subjects(),f.subject,'All subjects'))}</div>
+  <div id="list">${LISTS.classroom(u)}</div>`};
+LISTS.classroom=u=>{const f=ui.room,q=f.q.toLowerCase(),t=u.role==='teacher';
+  const match=it=>vis(it,u)&&bf(it,f.batch)&&(!f.subject||it.subject===f.subject)&&(!q||((it.title||'')+' '+(it.body||it.desc||'')+' '+(it.subject||'')).toLowerCase().includes(q));
+  const pinBtn=(act,it)=>t?`<button class="btn sm" data-act="${act}" data-id="${it.id}" title="${it.pinned?'Unpin':'Pin to top'}">${icon('pin',16)}${it.pinned?'Unpin':'Pin'}</button>`:'';
+  if(f.tab==='asg'){
+    const a=db.assigns.filter(match).sort((x,y)=>pinCmp(x,y)||x.due.localeCompare(y.due));
+    if(!a.length)return empty('room','No assignments',t?'Create an assignment with a due date.':'Nothing assigned right now.',t?`<button class="btn pri" data-act="asg-new">${icon('plus')}New assignment</button>`:'');
+    return a.map(x=>{const link=safeUrl(x.url),subs=db.subs.filter(s=>s.aid===x.id).length,tot=students().filter(s=>x.batch==='All'||s.batch===x.batch).length,mine=t?null:mySub(x,u);
+     return `<article class="item ${x.pinned?'pinned':''}"><div class="body"><h3>${x.pinned?icon('pin',15)+' ':''}${esc(x.title)}</h3><div class="chips">${x.subject?chip(x.subject):''}${chip(batchLabel(x.batch))}${chip('Due '+fmtDate(x.due))}${t?badge(subs+' of '+tot+' submitted','info'):dueBadge(x,u)}</div>${x.desc?`<p class="d" style="margin-top:8px">${nl2br(x.desc)}</p>`:''}${link?`<p><a href="${esc(link)}" target="_blank" rel="noopener noreferrer">${icon('link',15)} Reference link</a></p>`:''}${mine&&mine.feedback?`<div class="preview" style="margin-top:8px"><b>Teacher feedback:</b> ${esc(mine.feedback)}</div>`:''}</div><div class="acts">${t?`<button class="btn sm pri" data-act="asg-subs" data-id="${x.id}">View submissions</button>${pinBtn('asg-pin',x)}<button class="btn sm" data-act="asg-notify" data-id="${x.id}">${icon('wa',16)}Notify</button><button class="btn sm" data-act="asg-edit" data-id="${x.id}" aria-label="Edit">${icon('edit',16)}</button><button class="btn sm danger" data-act="asg-del" data-id="${x.id}" aria-label="Delete">${icon('trash',16)}</button>`:`<button class="btn sm pri" data-act="asg-submit" data-id="${x.id}">${mine?'Edit submission':'Submit work'}</button>`}</div></article>`}).join('');
+  }
+  const kind=f.tab==='res'?'resource':'announcement';
+  const a=db.posts.filter(p=>p.kind===kind&&match(p)).sort((x,y)=>pinCmp(x,y)||y.ts-x.ts);
+  if(!a.length)return empty('room',kind==='resource'?'No resources':'No announcements',t?'Add one using the button above.':'Nothing posted yet.');
+  return a.map(p=>{const link=safeUrl(p.url);return `<article class="item ${p.pinned?'pinned':''}"><div class="body"><h3>${p.pinned?icon('pin',15)+' ':''}${esc(p.title)}</h3><div class="chips">${p.subject?chip(p.subject):''}${chip(batchLabel(p.batch))}<span class="mute" style="font-size:.82rem">${fmtStamp(p.ts)}</span></div>${p.body?`<p class="d" style="margin-top:8px">${nl2br(p.body)}</p>`:''}${kind==='resource'&&link?`<a class="btn sm" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${icon('ext',16)}Open link</a>`:''}</div>${t?`<div class="acts">${pinBtn('post-pin',p)}<button class="btn sm" data-act="post-notify" data-id="${p.id}">${icon('wa',16)}Notify</button><button class="btn sm" data-act="post-edit" data-id="${p.id}" aria-label="Edit">${icon('edit',16)}</button><button class="btn sm danger" data-act="post-del" data-id="${p.id}" aria-label="Delete">${icon('trash',16)}</button></div>`:''}</article>`}).join('');
+};
+
+/* exams */
+VIEW.exam=u=>u.role==='teacher'?(ui.exam.sel&&db.exams.find(e=>e.id===ui.exam.sel)?examDetail(db.exams.find(e=>e.id===ui.exam.sel)):examList()):examStudent(u);
+function examList(){
+  return `<div class="page-h"><div><h1>Exams</h1><p class="sub">Create exams, enter marks and publish results.</p></div><button class="btn pri" data-act="exam-new">${icon('plus')}Create exam</button></div>
+  <div class="info">${icon('info')}<span>${CLOUD_ON?'Students can only read their own marks, and only after you publish. The database enforces this, not just this page.':'In this demo, students are kept from other students\' results only by this page\'s code. Connect Supabase so the database enforces it (Account → Setup guide).'}</span></div>
+  ${db.exams.length?[...db.exams].sort((a,b)=>b.date.localeCompare(a.date)).map(e=>{const st=examStudents(e),done=st.filter(s=>calc(e,s.id).st!=='pending').length;return `<article class="item"><div class="body"><h3>${esc(e.title)}</h3><div class="chips">${chip(e.subject)}${chip(batchLabel(e.batch))}${chip(fmtDate(e.date))}${chip('Out of '+e.total+' · pass '+e.pass)}${e.published?badge('Published','ok'):badge('Draft','warn')}</div><div class="row2 mute" style="font-size:.88rem">Marks entered for ${done} of ${st.length} students</div></div><div class="acts"><button class="btn sm pri" data-act="exam-open" data-id="${e.id}">Open</button></div></article>`}).join(''):empty('exam','No exams yet','Create an exam, then enter or import marks.',`<button class="btn pri" data-act="exam-new">${icon('plus')}Create exam</button>`)}`;
+}
+function examStats(e){const rs=examStudents(e).map(s=>calc(e,s.id)),sc=rs.filter(r=>r.m!==undefined);const pass=sc.filter(r=>r.st==='pass').length;return {n:rs.length,entered:sc.length,pass:sc.length?Math.round(pass/sc.length*100):0,avg:sc.length?Math.round(sc.reduce((a,r)=>a+r.pct,0)/sc.length*10)/10:0,high:sc.length?Math.max(...sc.map(r=>r.m)):0}}
+function examDetail(e){
+  const st=examStudents(e),k=examStats(e);
+  return `<div class="page-h"><div><button class="btn sm" data-act="exam-back" style="margin-bottom:8px">${icon('back',16)}All exams</button><h1>${esc(e.title)}</h1><p class="sub">${esc(e.subject)} · ${esc(batchLabel(e.batch))} · ${fmtDate(e.date)} · out of ${e.total}, pass at ${e.pass} ${e.published?badge('Published','ok'):badge('Draft','warn')}</p></div></div>
+  <div class="chips" style="margin-bottom:14px"><button class="btn sm pri" data-act="exam-marks" data-id="${e.id}">${icon('edit',16)}Enter marks</button><button class="btn sm" data-act="exam-import" data-id="${e.id}">${icon('upload',16)}Import CSV</button><button class="btn sm" data-act="exam-export" data-id="${e.id}">${icon('download',16)}Export CSV</button><button class="btn sm" data-act="exam-sheet" data-id="${e.id}">${icon('file',16)}Result sheet</button><button class="btn sm" data-act="exam-pub" data-id="${e.id}">${e.published?'Unpublish results':'Publish results'}</button><button class="btn sm" data-act="exam-edit" data-id="${e.id}" aria-label="Edit exam">${icon('edit',16)}Details</button><button class="btn sm danger" data-act="exam-del" data-id="${e.id}" aria-label="Delete exam">${icon('trash',16)}</button></div>
+  <div class="strip" style="margin:0 0 16px"><div><b>${k.entered}/${k.n}</b><span>Marks entered</span></div><div><b>${k.pass}%</b><span>Pass rate</span></div><div><b>${k.avg}%</b><span>Average</span></div><div><b>${k.high}</b><span>Highest marks</span></div></div>
+  ${st.length?`<div class="tw"><table class="tbl"><thead><tr><th>Roll</th><th>Name</th><th>Marks</th><th>Percentage</th><th>Status</th><th><span class="sr">Document</span></th></tr></thead><tbody>${st.map(s=>{const r=calc(e,s.id);return `<tr><td>${esc(s.roll||'–')}</td><td>${esc(s.name)}</td><td>${r.m!==undefined?r.m+' / '+e.total:r.st==='absent'?'AB':'–'}</td><td>${r.pct!==undefined?r.pct+'%':'–'}</td><td>${stBadge(r)}</td><td>${r.st==='pending'?'':`<button class="btn sm" data-act="exam-doc" data-id="${e.id}" data-s="${s.id}" aria-label="Download result document">${icon('download',16)}</button>`}</td></tr>`}).join('')}</tbody></table></div>`:empty('users','No students in this batch','Students appear here after they sign up or you add them in Account.')}`;
+}
+function examStudent(u){
+  const a=db.exams.filter(e=>e.published&&vis(e,u)).sort((x,y)=>y.date.localeCompare(x.date));
+  return `<div class="page-h"><div><h1>My results</h1><p class="sub">Only results your teacher has published appear here.</p></div></div>
+  ${a.length?a.map(e=>{const r=calc(e,u.id);return `<article class="item"><div class="body"><h3>${esc(e.title)}</h3><div class="chips">${chip(e.subject)}${chip(fmtDate(e.date))}${stBadge(r)}</div>${r.m!==undefined?`<p style="margin:10px 0 6px"><b style="font:600 1.5rem var(--fd)">${r.m}</b> <span class="mute">out of ${e.total} · ${r.pct}%</span></p><div class="bar" aria-hidden="true"><i style="width:${Math.min(100,r.pct)}%"></i></div>`:`<p class="d">${r.st==='absent'?'Marked absent.':'Your marks have not been entered yet.'}</p>`}</div><div class="acts">${r.st==='pending'?'':`<button class="btn sm pri" data-act="exam-doc" data-id="${e.id}" data-s="${u.id}">${icon('download',16)}Result document</button>`}</div></article>`}).join(''):empty('exam','No published results','Results show up here once your teacher publishes them.')}`;
+}
+
+/* account */
+function profileFields(u){const t=u.role==='teacher';
+  return `<div class="g2"><label class="f">Full name<input name="name" required value="${esc(u.name)}"></label><label class="f">Email<input name="email" type="email" ${CLOUD_ON?'readonly title="Email is your sign-in name and cannot be changed here"':''} value="${esc(u.email||'')}"></label><label class="f">Mobile number<input name="mobile" inputmode="tel" value="${esc(u.mobile||'')}"></label>
+  ${t?'':`<label class="f">Date of birth<input name="dob" type="date" value="${esc(u.dob||'')}"></label><label class="f">Batch<select name="batch">${opts(db.settings.batches,u.batch,'Not assigned')}</select></label><label class="f">Semester<select name="semester">${semAny(u.semester)}</select></label><label class="f">Academic year<input name="year" placeholder="2026-27" value="${esc(u.year||'')}"></label><label class="f">Roll number<input name="roll" value="${esc(u.roll||'')}"></label><label class="f">Category <small>Optional</small><select name="category">${opts(['General','OBC','SC','ST','EWS','Other'],u.category,'Prefer not to say')}</select></label>`}
+  <label class="f">College name <small>Optional</small><input name="college" value="${esc(u.college||'')}"></label></div>`}
+VIEW.account=u=>{
+  const t=u.role==='teacher';ui.photo=undefined;
+  const conn=CLOUD_ON?[['Sign-in and data','Supabase (cloud). Shared with students','ok','Live'],['Note files','Supabase Storage (private)','ok','Live'],['WhatsApp','Click-to-chat links. You press Send','ok','Free'],['Live classes','Google Meet links you paste','ok','Free'],['Email','Draft opens in your mail app','ok','Free'],['Phone OTP','Needs a paid SMS service','mute','Not offered']]:[['Sign-in and data','Offline demo, stored in this browser','warn','Not shared'],['Note files','This browser only (IndexedDB)','warn','Not shared'],['WhatsApp','Click-to-chat links. You press Send','ok','Free'],['Live classes','Google Meet links you paste','ok','Free'],['Email','Draft opens in your mail app','ok','Free'],['Supabase','Not set up. Add your project details to the file (see Setup guide)','mute','Off']];
+  return `<div class="page-h"><div><h1>Account</h1><p class="sub">${t?'Your profile, students and settings.':'Your profile and preferences.'}</p></div></div><div class="stack">
+  <section class="card"><h2>Profile</h2><form class="stack" data-form="profile"><input type="hidden" name="id" value="${u.id}">
+  <div class="photo"><span id="ph-prev">${avatar(u,'lg')}</span><div><label class="btn sm" style="cursor:pointer;position:relative">${icon('camera',16)}Change photo<input type="file" accept="image/*" data-chg="photo" class="sr"></label> <button type="button" class="btn sm" data-act="photo-clear">Remove</button><p class="mute" style="font-size:.85rem;margin-top:6px">Saved in this browser only, resized to 256 px.</p></div></div>
+  ${profileFields(u)}<div class="actions" style="margin:0"><button class="btn pri" type="submit">Save profile</button></div></form></section>
+  <section class="card"><h2>Appearance</h2><div class="chips"><button class="btn" data-act="theme">${icon(document.documentElement.dataset.theme==='dark'?'sun':'moon')}Switch to ${document.documentElement.dataset.theme==='dark'?'light':'dark'} mode</button><button class="btn" data-act="logout">${icon('logout')}Log out</button></div></section>
+  ${t?`<section class="card"><h2>Students ${CLOUD_ON?'':`<button class="btn sm pri" data-act="stu-add">${icon('plus',16)}Add student</button>`}</h2>${students().length?`<div class="tw"><table class="tbl"><thead><tr><th>Name</th><th>Batch</th><th>Roll</th><th>Mobile</th><th><span class="sr">Actions</span></th></tr></thead><tbody>${[...students()].sort((a,b)=>String(a.batch).localeCompare(b.batch)||rollSort(a,b)).map(s=>`<tr><td>${esc(s.name)}${s.demo?' '+badge('Demo','mute'):''}</td><td>${esc(s.batch||'')}</td><td>${esc(s.roll||'')}</td><td>${esc(s.mobile||'')}</td><td style="white-space:nowrap"><button class="btn sm" data-act="stu-edit" data-id="${s.id}" aria-label="Edit ${esc(s.name)}">${icon('edit',16)}</button>${CLOUD_ON?'':` <button class="btn sm danger" data-act="stu-del" data-id="${s.id}" aria-label="Remove ${esc(s.name)}">${icon('trash',16)}</button>`}</td></tr>`).join('')}</tbody></table></div>`:`<p class="mute">No students yet. They sign up on the login screen${CLOUD_ON?'':', or add them here'}.</p>`}${CLOUD_ON?`<p class="mute" style="font-size:.88rem;margin-top:10px">Students sign up themselves. Set each batch with the edit button. To remove someone, delete them in Supabase (Authentication → Users).</p>`:''}</section>
+  <section class="card"><h2>Batches and defaults</h2><form class="stack" data-form="settings"><div class="g2"><label class="f">Batches <small>Separate with commas</small><input name="batches" value="${esc(db.settings.batches.join(', '))}"></label><label class="f">Default academic year<input name="year" value="${esc(db.settings.academicYear)}"></label><label class="f">Country code for WhatsApp <small>Added to 10-digit mobile numbers</small><input name="country" inputmode="numeric" value="${esc(db.settings.country)}"></label></div><div class="actions" style="margin:0"><button class="btn pri" type="submit">Save settings</button></div></form></section>
+  <section class="card"><h2>What is connected</h2><div class="kv">${conn.map(c=>`<div><b>${c[0]}</b></div><div class="mute">${esc(c[1])}</div><div>${badge(c[3],c[2])}</div>`).join('')}</div></section>
+  <section class="card"><h2>${CLOUD_ON?'Cloud connection':'Connect Supabase'} <button class="btn sm" data-act="guide">Setup guide</button></h2>${CLOUD_ON?`<p class="mute">Connected to <b>${esc(SBURL)}</b>. Changes save automatically, and new posts reach students within about a minute.</p>`:`<p class="mute" style="margin-bottom:12px">Paste your project URL and the <b>anon (public)</b> key to test them. Then copy the line it shows into the top of this file (the CLOUD setting) and upload the file again. Nothing is saved from this form.</p><form class="stack" data-form="sb"><div class="g2"><label class="f">Project URL<input name="url" placeholder="https://abcdxyz.supabase.co"></label><label class="f">Anon / publishable key<input name="key" autocomplete="off"></label></div><div class="actions" style="margin:0"><button class="btn" type="submit">Test</button></div></form><div id="sb-status" style="margin-top:12px"></div>`}</section>
+  <section class="card"><h2>Your data</h2>${CLOUD_ON?'<p class="mute" style="margin-bottom:12px">Your records live in Supabase. Download a copy any time (records only, not uploaded files).</p><div class="chips"><button class="btn" data-act="backup">'+icon('download',16)+'Export backup (JSON)</button></div>':`<p class="mute" id="stor" style="margin-bottom:12px">Everything is stored in this browser. Clearing site data deletes it.</p><div class="chips"><button class="btn" data-act="backup">${icon('download',16)}Export backup (JSON)</button><label class="btn" style="cursor:pointer">${icon('upload',16)}Import backup<input type="file" accept="application/json,.json" data-chg="restore" class="sr"></label><button class="btn danger" data-act="reset">${icon('trash',16)}Reset demo data</button></div><p class="mute" style="font-size:.85rem;margin-top:8px">Backups include records, not uploaded files.</p>`}</section>`:''}
+  </div>`;
+};
+
+/* ============ auth forms ============ */
+const MAILRE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+FORMS.login=fd=>{if(CLOUD_ON)return cloudLogin(fd.get('ident')||'',fd.get('pw')||'');if(!(fd.get('ident')||'').trim())return toast('Enter your email or mobile number.','err');login(ui.auth.role,fd.get('ident'))};
+FORMS.signup=fd=>{
+  if(CLOUD_ON)return cloudSignup(fd);
+  const name=(fd.get('name')||'').trim(),ident=(fd.get('ident')||'').trim(),mail=ident.includes('@'),dg=ident.replace(/\D/g,'');
+  if(!name)return toast('Enter your name.','err');
+  if(mail?!MAILRE.test(ident):(dg.length<10||dg.length>15))return toast('Enter a valid email address or a 10-digit mobile number.','err');
+  if(db.users.some(x=>mail?(x.email||'').toLowerCase()===ident.toLowerCase():(x.mobile||'').replace(/\D/g,'').slice(-10)===dg.slice(-10)))return toast('A profile with that email or mobile number already exists. Log in instead.','err');
+  const u={id:uid('u_'),role:'student',name,email:mail?ident:'',mobile:mail?'':ident,dob:'',batch:'',semester:'',year:db.settings.academicYear,roll:(fd.get('roll')||'').trim(),category:'',college:''};
+  db.users.push(u);save();LS.set(SKEY,u.id);toast('Profile created. Password was not saved (demo mode).','ok');go('home');route();
+};
+
+/* ============ notes ============ */
+const subjList=()=>`<datalist id="subj">${subjects().map(s=>`<option value="${esc(s)}">`).join('')}</datalist>`;
+const semAny=sel=>opts([1,2,3,4,5,6,7,8].map(n=>[String(n),'Semester '+n]),sel,'Not specified');
+function noteForm(n){
+  return `<form class="stack" data-form="noteSave"><input type="hidden" name="id" value="${n?n.id:''}">
+  ${n?`<div class="info" style="margin:0">${icon('file')}<span>${esc(n.fileName)} (${fmtSize(n.size)}). To change the file, delete this note and upload it again.</span></div>`:`<label class="f">File<input type="file" name="file" accept=".py,.ppt,.pptx,.doc,.docx,.pdf,.txt,.zip" required data-chg="notefile"><small>Allowed: .py .ppt .pptx .doc .docx .pdf .txt .zip, up to 20 MB</small></label>`}
+  <label class="f">Title<input name="title" required value="${esc(n?n.title:'')}"></label>
+  <label class="f">Description <small>Optional</small><textarea name="desc" rows="3">${esc(n?n.desc:'')}</textarea></label>
+  <div class="g3"><label class="f">Subject<input name="subject" list="subj" required value="${esc(n?n.subject:'')}">${subjList()}</label><label class="f">Batch<select name="batch">${batchOpts(n?n.batch:'All',true)}</select></label><label class="f">Semester<select name="sem">${semAny(n?n.sem:'')}</select></label></div>
+  ${n?'':'<label class="chk"><input type="checkbox" name="notify" checked>Choose who to notify after uploading</label>'}
+  <div class="actions"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri" type="submit">${n?'Save changes':'Upload note'}</button></div></form>`;
+}
+CHG.notefile=t=>{const f=t.files[0],ti=t.form.elements.title;if(f&&ti&&!ti.value)ti.value=f.name.replace(/\.[^.]+$/,'')};
+ACT['note-new']=()=>modal('Upload note',noteForm(null));
+ACT['note-edit']=b=>modal('Edit note',noteForm(db.notes.find(x=>x.id===b.dataset.id)));
+ACT['note-del']=b=>{const n=db.notes.find(x=>x.id===b.dataset.id);if(n)ask(`Delete "${n.title}"? Students will no longer see it.`,'Delete note',()=>{if(n.fileKey)files.del(n.fileKey);db.notes=db.notes.filter(x=>x!==n);save();toast('Note deleted.','ok');render()})};
+ACT['note-dl']=async b=>{const n=db.notes.find(x=>x.id===b.dataset.id);if(!n)return;
+  if(n.sample)return dl(new Blob([n.sample],{type:n.mime||'text/plain'}),n.fileName);
+  try{const blob=await files.get(n.fileKey);if(!blob)throw new Error('This file is not stored in this browser. It was uploaded elsewhere, or site data was cleared.');dl(blob,n.fileName)}catch(e){toast(e.message,'err')}};
+const noteMsg=n=>`Hi {name}, new notes "${n.title}" (${n.subject}) are on CompEdu. Open the Notes tab to download them.`;
+ACT['note-notify']=b=>{const n=db.notes.find(x=>x.id===b.dataset.id);if(n)openNotify({title:'New notes: '+n.title,msg:noteMsg(n),batch:n.batch,view:'notes'})};
+ACT['notify-free']=()=>openNotify({title:'Message from your teacher',msg:'Hi {name}, ',view:'home'});
+FORMS.noteSave=async fd=>{
+  const id=fd.get('id'),file=fd.get('file'),title=(fd.get('title')||'').trim(),subject=(fd.get('subject')||'').trim();
+  if(!title||!subject)return toast('Title and subject are required.','err');
+  const meta={title,desc:(fd.get('desc')||'').trim(),subject,batch:fd.get('batch'),sem:fd.get('sem')||''};
+  let n=id?db.notes.find(x=>x.id===id):null;
+  if(!n){
+    if(!file||!file.name)return toast('Choose a file to upload.','err');
+    const ext=extOf(file.name);
+    if(!EXTS.includes(ext))return toast('.'+ext+' files are not allowed. Use: '+EXTS.map(x=>'.'+x).join(' '),'err');
+    if(file.size>MAXF)return toast('That file is '+fmtSize(file.size)+'. The limit here is 20 MB.','err');
+    const key='notes/'+uid('f_');
+    try{await files.put(key,file)}catch(e){return toast('Could not store the file: '+(e&&e.message||'unknown error'),'err')}
+    n=Object.assign({id:uid('n_'),fileName:file.name,size:file.size,ext,mime:file.type,fileKey:key,ts:Date.now()},meta);db.notes.push(n);
+  }else Object.assign(n,meta);
+  save();closeModal();toast(id?'Note updated.':(CLOUD_ON?'Note uploaded.':'Note uploaded to this browser.'),'ok');render();
+  if(!id&&fd.get('notify'))openNotify({title:'New notes: '+n.title,msg:noteMsg(n),batch:n.batch,view:'notes'});
+};
+
+/* ============ live classes ============ */
+ACT['live-tab']=b=>{ui.live.tab=b.dataset.t;render()};
+function classForm(c){
+  const d=c||{title:'',subject:'',batch:db.settings.batches[0],date:dstr(1),time:'10:00',dur:60,link:'',desc:'',recording:''};
+  return `<form class="stack" data-form="classSave"><input type="hidden" name="id" value="${c?c.id:''}">
+  <label class="f">Class title<input name="title" required value="${esc(d.title)}"></label>
+  <div class="g2"><label class="f">Subject<input name="subject" list="subj" required value="${esc(d.subject)}">${subjList()}</label><label class="f">Batch<select name="batch">${batchOpts(d.batch,true)}</select></label>
+  <label class="f">Date<input name="date" type="date" required value="${esc(d.date)}"></label><label class="f">Start time<input name="time" type="time" required value="${esc(d.time)}"></label>
+  <label class="f">Length in minutes<input name="dur" type="number" min="10" max="480" step="5" value="${d.dur||60}"></label></div>
+  <label class="f">Google Meet link<input name="link" type="url" required placeholder="https://meet.google.com/abc-defg-hij" value="${esc(d.link)}"><small>Create it yourself at meet.google.com (New meeting, then Create a meeting for later) and paste it here.</small></label>
+  <label class="f">Agenda or notes <small>Optional</small><textarea name="desc" rows="2">${esc(d.desc)}</textarea></label>
+  <label class="f">Recording or class notes link <small>Optional, useful after the class</small><input name="recording" type="url" value="${esc(d.recording||'')}"></label>
+  ${c?'':'<label class="chk"><input type="checkbox" name="notify">Choose who to notify after saving</label>'}
+  <div class="actions"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri" type="submit">${c?'Save changes':'Schedule class'}</button></div></form>`;
+}
+ACT['class-new']=()=>modal('Schedule a live class',classForm(null));
+ACT['class-edit']=b=>modal('Edit class',classForm(db.classes.find(x=>x.id===b.dataset.id)));
+ACT['class-del']=b=>{const c=db.classes.find(x=>x.id===b.dataset.id);if(c)ask(`Delete "${c.title}"?`,'Delete class',()=>{db.classes=db.classes.filter(x=>x!==c);save();toast('Class deleted.','ok');render()})};
+const classMsg=(c,pre)=>`Hi {name}, ${pre} "${c.title}" (${c.subject}) on ${fmtDate(c.date)} at ${fmtTime(c.time)}.${safeUrl(c.link)?' Join: '+safeUrl(c.link):''}`;
+ACT['class-notify']=b=>{const c=db.classes.find(x=>x.id===b.dataset.id);if(c)openNotify({title:'Live class: '+c.title,msg:classMsg(c,'live class'),batch:c.batch,view:'live'})};
+FORMS.classSave=fd=>{
+  const link=safeUrl(fd.get('link'));if(!link)return toast('Paste a full link that starts with https://','err');
+  const rec=(fd.get('recording')||'').trim();if(rec&&!safeUrl(rec))return toast('The recording link must start with https://','err');
+  const meta={title:fd.get('title').trim(),subject:fd.get('subject').trim(),batch:fd.get('batch'),date:fd.get('date'),time:fd.get('time'),dur:Number(fd.get('dur'))||60,link,desc:(fd.get('desc')||'').trim(),recording:rec?safeUrl(rec):''};
+  if(!meta.title||!meta.subject)return toast('Title and subject are required.','err');
+  const id=fd.get('id');let c=id?db.classes.find(x=>x.id===id):null;
+  if(c)Object.assign(c,meta);else{c=Object.assign({id:uid('c_')},meta);db.classes.push(c)}
+  save();closeModal();let msg=id?'Class updated.':'Class scheduled.';if(!/(^|\.)meet\.google\.com$/.test(new URL(link).hostname))msg+=' Note: that link is not a meet.google.com address.';toast(msg,'ok');render();
+  if(!id&&fd.get('notify'))openNotify({title:'Live class: '+c.title,msg:classMsg(c,'a live class is scheduled:'),batch:c.batch,view:'live'});
+};
+ACT['class-resch']=b=>{const c=db.classes.find(x=>x.id===b.dataset.id);if(!c)return;
+  modal('Reschedule class',`<form class="stack" data-form="resch"><input type="hidden" name="id" value="${c.id}"><p class="mute">${esc(c.title)} is currently on ${fmtDate(c.date)} at ${fmtTime(c.time)}.</p><div class="g2"><label class="f">New date<input name="date" type="date" required value="${esc(c.date)}"></label><label class="f">New start time<input name="time" type="time" required value="${esc(c.time)}"></label></div><label class="chk"><input type="checkbox" name="notify" checked>Choose who to notify after saving</label><div class="actions"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri" type="submit">Reschedule</button></div></form>`)};
+FORMS.resch=fd=>{const c=db.classes.find(x=>x.id===fd.get('id'));if(!c)return;
+  if(fd.get('date')===c.date&&fd.get('time')===c.time)return toast('Pick a different date or time.','err');
+  c.prev={date:c.date,time:c.time};c.resch=true;c.date=fd.get('date');c.time=fd.get('time');save();closeModal();toast('Class rescheduled.','ok');render();
+  if(fd.get('notify'))openNotify({title:'Class rescheduled: '+c.title,msg:classMsg(c,'the class was rescheduled:'),batch:c.batch,view:'live'});
+};
+ACT['class-ics']=b=>{const c=db.classes.find(x=>x.id===b.dataset.id);if(!c)return;
+  const t=(d,tm)=>d.replace(/-/g,'')+'T'+tm.replace(':','')+'00',en=new Date(parseDT(c.date,c.time).getTime()+(c.dur||60)*60000);
+  const e=en.getFullYear()+pad(en.getMonth()+1)+pad(en.getDate())+'T'+pad(en.getHours())+pad(en.getMinutes())+'00';
+  const x=s=>String(s||'').replace(/([,;\\])/g,'\\$1').replace(/\r?\n/g,'\\n');
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//CompEdu//EN','BEGIN:VEVENT','UID:'+c.id+'@compedu','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z','DTSTART:'+t(c.date,c.time),'DTEND:'+e,'SUMMARY:'+x(c.title+' ('+c.subject+')'),'DESCRIPTION:'+x((c.desc?c.desc+'\n':'')+'Join: '+safeUrl(c.link)),'LOCATION:'+x(safeUrl(c.link)),'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  dl(new Blob([ics],{type:'text/calendar'}),slug(c.title)+'.ics')};
+
+/* ============ classroom ============ */
+ACT['room-tab']=b=>{ui.room.tab=b.dataset.t;render()};
+ACT['room-asg']=()=>{ui.room.tab='asg'};
+ACT['room-new']=()=>ui.room.tab==='asg'?ACT['asg-new']():ACT['post-new']({dataset:{k:ui.room.tab==='res'?'resource':'announcement'}});
+function postForm(kind,p){
+  const r=kind==='resource',d=p||{title:'',body:'',subject:'',batch:'All',url:'',pinned:false};
+  return `<form class="stack" data-form="postSave"><input type="hidden" name="id" value="${p?p.id:''}"><input type="hidden" name="kind" value="${kind}">
+  <label class="f">Title<input name="title" required value="${esc(d.title)}"></label>
+  <label class="f">${r?'Short description':'Message'}${r?' <small>Optional</small>':''}<textarea name="body" rows="4" ${r?'':'required'}>${esc(d.body)}</textarea></label>
+  ${r?`<label class="f">Link<input name="url" type="url" required placeholder="https://" value="${esc(d.url||'')}"></label>`:''}
+  <div class="g2"><label class="f">Batch<select name="batch">${batchOpts(d.batch,true)}</select></label><label class="f">Subject <small>Optional</small><input name="subject" list="subj" value="${esc(d.subject)}">${subjList()}</label></div>
+  <label class="chk"><input type="checkbox" name="pinned" ${d.pinned?'checked':''}>Pin to the top</label>
+  ${p?'':'<label class="chk"><input type="checkbox" name="notify">Choose who to notify after posting</label>'}
+  <div class="actions"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri" type="submit">${p?'Save changes':(r?'Add resource':'Post announcement')}</button></div></form>`;
+}
+ACT['post-new']=b=>{const k=b.dataset.k==='resource'?'resource':'announcement';modal(k==='resource'?'Add resource':'New announcement',postForm(k,null))};
+ACT['post-edit']=b=>{const p=db.posts.find(x=>x.id===b.dataset.id);if(p)modal('Edit post',postForm(p.kind,p))};
+ACT['post-del']=b=>{const p=db.posts.find(x=>x.id===b.dataset.id);if(p)ask(`Delete "${p.title}"?`,'Delete post',()=>{db.posts=db.posts.filter(x=>x!==p);save();toast('Post deleted.','ok');render()})};
+ACT['post-pin']=b=>{const p=db.posts.find(x=>x.id===b.dataset.id);if(p){p.pinned=!p.pinned;save();render()}};
+ACT['post-notify']=b=>{const p=db.posts.find(x=>x.id===b.dataset.id);if(p)openNotify({title:p.title,msg:`Hi {name}, new ${p.kind==='resource'?'resource':'announcement'} on CompEdu: "${p.title}". Open the Classroom tab to read it.`,batch:p.batch,view:'classroom'})};
+FORMS.postSave=fd=>{
+  const kind=fd.get('kind'),url=safeUrl(fd.get('url'));
+  if(kind==='resource'&&!url)return toast('Paste a full link that starts with https://','err');
+  const meta={kind,title:fd.get('title').trim(),body:(fd.get('body')||'').trim(),subject:(fd.get('subject')||'').trim(),batch:fd.get('batch'),pinned:!!fd.get('pinned')};
+  if(kind==='resource')meta.url=url;if(!meta.title)return toast('Add a title.','err');
+  const id=fd.get('id');let p=id?db.posts.find(x=>x.id===id):null;
+  if(p)Object.assign(p,meta);else{p=Object.assign({id:uid('p_'),ts:Date.now()},meta);db.posts.push(p)}
+  save();closeModal();toast(id?'Post updated.':'Posted.','ok');render();
+  if(!id&&fd.get('notify'))ACT['post-notify']({dataset:{id:p.id}});
+};
+function asgForm(a){const d=a||{title:'',desc:'',subject:'',batch:db.settings.batches[0],due:dstr(7),url:'',pinned:false};
+  return `<form class="stack" data-form="asgSave"><input type="hidden" name="id" value="${a?a.id:''}">
+  <label class="f">Title<input name="title" required value="${esc(d.title)}"></label>
+  <label class="f">Instructions<textarea name="desc" rows="4">${esc(d.desc)}</textarea></label>
+  <div class="g3"><label class="f">Batch<select name="batch">${batchOpts(d.batch,true)}</select></label><label class="f">Subject<input name="subject" list="subj" value="${esc(d.subject)}">${subjList()}</label><label class="f">Due date<input name="due" type="date" required value="${esc(d.due)}"></label></div>
+  <label class="f">Reference link <small>Optional</small><input name="url" type="url" placeholder="https://" value="${esc(d.url||'')}"></label>
+  <label class="chk"><input type="checkbox" name="pinned" ${d.pinned?'checked':''}>Pin to the top</label>
+  ${a?'':'<label class="chk"><input type="checkbox" name="notify">Choose who to notify after saving</label>'}
+  <div class="actions"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri" type="submit">${a?'Save changes':'Create assignment'}</button></div></form>`}
+ACT['asg-new']=()=>modal('New assignment',asgForm(null));
+ACT['asg-edit']=b=>modal('Edit assignment',asgForm(db.assigns.find(x=>x.id===b.dataset.id)));
+ACT['asg-pin']=b=>{const a=db.assigns.find(x=>x.id===b.dataset.id);if(a){a.pinned=!a.pinned;save();render()}};
+ACT['asg-del']=b=>{const a=db.assigns.find(x=>x.id===b.dataset.id);if(a)ask(`Delete "${a.title}" and its submissions?`,'Delete assignment',()=>{db.subs.filter(s=>s.aid===a.id).forEach(s=>s.fileKey&&files.del(s.fileKey));db.subs=db.subs.filter(s=>s.aid!==a.id);db.assigns=db.assigns.filter(x=>x!==a);save();toast('Assignment deleted.','ok');render()})};
+ACT['asg-notify']=b=>{const a=db.assigns.find(x=>x.id===b.dataset.id);if(a)openNotify({title:'Assignment: '+a.title,msg:`Hi {name}, new assignment "${a.title}"${a.subject?' ('+a.subject+')':''}, due ${fmtDate(a.due)}. Submit it in the Classroom tab.`,batch:a.batch,view:'classroom'})};
+FORMS.asgSave=fd=>{
+  const url=(fd.get('url')||'').trim();if(url&&!safeUrl(url))return toast('The reference link must start with https://','err');
+  const meta={title:fd.get('title').trim(),desc:(fd.get('desc')||'').trim(),subject:(fd.get('subject')||'').trim(),batch:fd.get('batch'),due:fd.get('due'),url:url?safeUrl(url):'',pinned:!!fd.get('pinned')};
+  if(!meta.title)return toast('Add a title.','err');
+  const id=fd.get('id');let a=id?db.assigns.find(x=>x.id===id):null;
+  if(a)Object.assign(a,meta);else{a=Object.assign({id:uid('a_'),ts:Date.now()},meta);db.assigns.push(a)}
+  save();closeModal();toast(id?'Assignment updated.':'Assignment created.','ok');render();
+  if(!id&&fd.get('notify'))ACT['asg-notify']({dataset:{id:a.id}});
+};
+ACT['asg-submit']=b=>{const a=db.assigns.find(x=>x.id===b.dataset.id),u=me();if(!a)return;const s=mySub(a,u);
+  modal('Submit: '+a.title,`<form class="stack" data-form="subSave"><input type="hidden" name="aid" value="${a.id}">${dueEnd(a)<Date.now()?`<div class="info warn" style="margin:0">${icon('warn')}<span>The due date has passed. Your work will be marked as late.</span></div>`:''}<label class="f">Your answer<textarea name="text" rows="5">${esc(s?s.text:'')}</textarea></label><label class="f">Attach a file <small>Optional, up to 10 MB${s&&s.fileName?'. Current file: '+esc(s.fileName)+' (choosing a new one replaces it)':''}</small><input type="file" name="file"></label>${CLOUD_ON?'':'<p class="mute" style="font-size:.88rem">Demo: your submission is stored in this browser, so a teacher on another device will not see it until Supabase is connected.</p>'}<div class="actions"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri" type="submit">Submit work</button></div></form>`)};
+FORMS.subSave=async fd=>{
+  const u=me(),a=db.assigns.find(x=>x.id===fd.get('aid'));if(!a||u.role!=='student')return;
+  const text=(fd.get('text')||'').trim(),file=fd.get('file'),has=file&&file.name;
+  if(!text&&!has)return toast('Write an answer or attach a file.','err');
+  let info={};
+  if(has){if(file.size>MAXS)return toast('That file is '+fmtSize(file.size)+'. The limit is 10 MB.','err');
+    const key='submissions/'+u.id+'/'+uid('f_');try{await files.put(key,file)}catch(e){return toast('Could not store the file: '+(e&&e.message||'unknown error'),'err')}
+    info={fileName:file.name,fileKey:key,size:file.size};const old=mySub(a,u);if(old&&old.fileKey)files.del(old.fileKey)}
+  const late=Date.now()>dueEnd(a).getTime();let s=mySub(a,u);
+  if(s)Object.assign(s,{text,ts:Date.now(),late},info);else db.subs.push(Object.assign({id:uid('s_'),aid:a.id,sid:u.id,text,ts:Date.now(),late,feedback:''},info));
+  const t=teacher();if(t)pushNotif([t.id],'New submission',u.name+' submitted "'+a.title+'".','classroom');
+  save();closeModal();toast('Submission saved.','ok');render();
+};
+ACT['asg-subs']=b=>{const a=db.assigns.find(x=>x.id===b.dataset.id);if(!a)return;
+  const st=students().filter(s=>a.batch==='All'||s.batch===a.batch).sort(rollSort),subs=st.map(s=>[s,db.subs.find(x=>x.aid===a.id&&x.sid===s.id)]);
+  const done=subs.filter(x=>x[1]),miss=subs.filter(x=>!x[1]);
+  modal('Submissions: '+a.title,`<p class="mute" style="margin-bottom:12px">${done.length} of ${st.length} students have submitted.</p>${done.map(([s,x])=>`<div class="card" style="margin-bottom:10px"><div class="chips" style="justify-content:space-between"><b>${esc(s.name)} <span class="mute" style="font-weight:400">${esc(s.roll||'')}</span></b><span>${x.late?badge('Late','warn'):''} <span class="mute" style="font-size:.85rem">${fmtStamp(x.ts)}</span></span></div>${x.text?`<p style="margin:8px 0">${nl2br(x.text)}</p>`:''}${x.fileName?`<button class="btn sm" data-act="sub-dl" data-id="${x.id}">${icon('download',16)}${esc(x.fileName)} (${fmtSize(x.size)})</button>`:''}<div class="chips" style="margin-top:10px;flex-wrap:nowrap"><input id="fb-${x.id}" placeholder="Feedback or marks for ${esc(s.name.split(' ')[0])}" value="${esc(x.feedback||'')}" aria-label="Feedback"><button class="btn sm pri" data-act="sub-fb" data-id="${x.id}">Save</button></div></div>`).join('')||'<p class="mute">Nothing submitted yet.</p>'}${miss.length?`<p style="margin-top:14px"><b>Not submitted:</b> <span class="mute">${miss.map(x=>esc(x[0].name)).join(', ')}</span></p>`:''}`,{wide:true,nofocus:true})};
+ACT['sub-dl']=async b=>{const s=db.subs.find(x=>x.id===b.dataset.id);if(!s)return;try{const blob=await files.get(s.fileKey);if(!blob)throw new Error('This file is not stored in this browser.');dl(blob,s.fileName)}catch(e){toast(e.message,'err')}};
+ACT['sub-fb']=b=>{const s=db.subs.find(x=>x.id===b.dataset.id);if(!s)return;const el=document.getElementById('fb-'+s.id),v=el.value.trim();s.feedback=v;save();
+  if(v){const a=db.assigns.find(x=>x.id===s.aid);pushNotif([s.sid],'Feedback on "'+(a?a.title:'your work')+'"',v,'classroom')}toast('Feedback saved.','ok')};
+
+/* ============ exams ============ */
+function examForm(e){const d=e||{title:'',subject:'',batch:db.settings.batches[0],date:dstr(0),total:100,pass:40};
+  return `<form class="stack" data-form="examSave"><input type="hidden" name="id" value="${e?e.id:''}"><label class="f">Exam name<input name="title" required placeholder="Unit Test 1" value="${esc(d.title)}"></label>
+  <div class="g2"><label class="f">Subject<input name="subject" list="subj" required value="${esc(d.subject)}">${subjList()}</label><label class="f">Batch<select name="batch">${batchOpts(d.batch,true)}</select></label><label class="f">Exam date<input name="date" type="date" required value="${esc(d.date)}"></label><span></span>
+  <label class="f">Total marks<input name="total" type="number" min="1" step="0.5" required value="${d.total}"></label><label class="f">Passing marks<input name="pass" type="number" min="0" step="0.5" required value="${d.pass}"></label></div>
+  <div class="actions"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri" type="submit">${e?'Save changes':'Create exam'}</button></div></form>`}
+ACT['exam-new']=()=>modal('Create exam',examForm(null));
+ACT['exam-edit']=b=>modal('Edit exam',examForm(db.exams.find(x=>x.id===b.dataset.id)));
+FORMS.examSave=fd=>{
+  const total=Number(fd.get('total')),pass=Number(fd.get('pass'));
+  if(!(total>0))return toast('Total marks must be more than 0.','err');
+  if(!(pass>=0&&pass<=total))return toast('Passing marks must be between 0 and the total.','err');
+  const meta={title:fd.get('title').trim(),subject:fd.get('subject').trim(),batch:fd.get('batch'),date:fd.get('date'),total,pass};
+  const id=fd.get('id');let e=id?db.exams.find(x=>x.id===id):null;
+  if(e){Object.assign(e,meta);Object.keys(e.marks).forEach(k=>{if(e.marks[k]!=='AB'&&e.marks[k]>total)delete e.marks[k]})}else{e=Object.assign({id:uid('e_'),published:false,marks:{}},meta);db.exams.push(e);ui.exam.sel=e.id}
+  save();closeModal();toast(id?'Exam updated.':'Exam created. Enter or import marks next.','ok');render();
+};
+ACT['exam-open']=b=>{ui.exam.sel=b.dataset.id;render();window.scrollTo(0,0)};
+ACT['exam-back']=()=>{ui.exam.sel=null;render()};
+ACT['exam-del']=b=>{const e=db.exams.find(x=>x.id===b.dataset.id);if(e)ask(`Delete "${e.title}" and all its marks?`,'Delete exam',()=>{db.exams=db.exams.filter(x=>x!==e);ui.exam.sel=null;save();toast('Exam deleted.','ok');render()})};
+ACT['exam-pub']=b=>{const e=db.exams.find(x=>x.id===b.dataset.id);if(!e)return;
+  if(!e.published&&!examStudents(e).some(s=>calc(e,s.id).st!=='pending'))return toast('Enter some marks before publishing.','err');
+  e.published=!e.published;save();toast(e.published?'Results published. Students can now see their own marks.':'Results hidden from students.','ok');render();
+  if(e.published)openNotify({title:'Result published: '+e.title,msg:`Hi {name}, your result for "${e.title}" (${e.subject}) is published on CompEdu. Open the Exam tab to see it.`,batch:e.batch,view:'exam'})};
+ACT['exam-marks']=b=>{const e=db.exams.find(x=>x.id===b.dataset.id);if(!e)return;const st=examStudents(e);
+  modal('Enter marks: '+e.title,st.length?`<form data-form="marksSave"><input type="hidden" name="id" value="${e.id}"><p class="mute" style="margin-bottom:10px">Out of ${e.total}. Type AB for absent. Leave blank if not marked yet.</p><div class="tw"><table class="tbl" style="min-width:0"><thead><tr><th>Roll</th><th>Name</th><th>Marks</th></tr></thead><tbody>${st.map(s=>`<tr><td>${esc(s.roll||'–')}</td><td>${esc(s.name)}</td><td><input name="m_${s.id}" inputmode="decimal" autocomplete="off" aria-label="Marks for ${esc(s.name)}" value="${e.marks[s.id]===undefined?'':esc(e.marks[s.id])}"></td></tr>`).join('')}</tbody></table></div><div class="actions"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri" type="submit">Save marks</button></div></form>`:empty('users','No students in this batch','Add students in Account first.'),{wide:true})};
+FORMS.marksSave=fd=>{const e=db.exams.find(x=>x.id===fd.get('id'));if(!e)return;const next={};
+  for(const s of examStudents(e)){const v=String(fd.get('m_'+s.id)||'').trim();if(!v)continue;
+    if(/^ab(sent)?$/i.test(v)){next[s.id]='AB';continue}
+    const n=Number(v);if(isNaN(n)||n<0||n>e.total)return toast(`Marks for ${s.name} must be a number from 0 to ${e.total}, or AB.`,'err');next[s.id]=n}
+  Object.keys(e.marks).forEach(k=>{if(!examStudents(e).some(s=>s.id===k))next[k]=e.marks[k]});
+  e.marks=next;save();closeModal();toast('Marks saved.','ok');render()};
+function parseCSV(t){const rows=[];let r=[],c='',q=false;for(let i=0;i<t.length;i++){const ch=t[i];
+  if(q){if(ch==='"'){if(t[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}
+  else if(ch==='"')q=true;else if(ch===','){r.push(c);c=''}
+  else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&t[i+1]==='\n')i++;r.push(c);c='';if(r.some(x=>x.trim()!==''))rows.push(r);r=[]}else c+=ch}
+  r.push(c);if(r.some(x=>x.trim()!==''))rows.push(r);return rows}
+function importParse(e,text){
+  const rows=parseCSV(text.replace(/^\uFEFF/,''));if(rows.length<2)return {err:'The file needs a header row and at least one data row.'};
+  const H=rows[0].map(h=>h.toLowerCase().replace(/[^a-z0-9]/g,'')),col=n=>H.findIndex(h=>n.includes(h));
+  const iR=col(['roll','rollno','rollnumber','rollnum']),iE=col(['email','emailid','emailaddress']),iM=col(['mobile','phone','mobileno','mobilenumber']),iK=col(['marks','score','marksobtained','obtained']);
+  if(iK<0)return {err:'No "marks" column found. The header needs marks plus roll, email or mobile.'};
+  if(iR<0&&iE<0&&iM<0)return {err:'No roll, email or mobile column found to match students.'};
+  const st=examStudents(e),updates={},bad=[],unmatched=[];let blank=0;
+  rows.slice(1).forEach((r,i)=>{const line=i+2,g=k=>k<0?'':String(r[k]||'').trim();
+    const roll=g(iR),mail=g(iE).toLowerCase(),mob=g(iM).replace(/\D/g,'').slice(-10);
+    const s=(roll&&st.find(x=>String(x.roll||'').trim()===roll))||(mail&&st.find(x=>(x.email||'').toLowerCase()===mail))||(mob.length===10&&st.find(x=>(x.mobile||'').replace(/\D/g,'').slice(-10)===mob));
+    const id=roll||mail||mob||'(blank)';if(!s)return unmatched.push('Line '+line+': '+id);
+    const v=g(iK);if(!v){blank++;return}
+    if(/^ab(sent)?$/i.test(v)){updates[s.id]='AB';return}
+    const n=Number(v);if(isNaN(n)||n<0||n>e.total)return bad.push('Line '+line+': '+s.name+' has "'+v+'"');updates[s.id]=n});
+  return {updates,bad,unmatched,blank};
+}
+ACT['exam-import']=b=>{const e=db.exams.find(x=>x.id===b.dataset.id);if(!e)return;
+  modal('Import marks from CSV',`<form class="stack" data-form="impPreview"><input type="hidden" name="id" value="${e.id}"><p class="mute">Header row must include <b>marks</b> and one of <b>roll</b>, <b>email</b> or <b>mobile</b>. Only students of ${esc(batchLabel(e.batch))} are matched. Use AB for absent.</p><div><button type="button" class="btn sm" data-act="exam-tpl" data-id="${e.id}">${icon('download',16)}Download a template for this exam</button></div><label class="f">CSV file<input type="file" name="file" accept=".csv,text/csv" required></label><div class="actions"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri" type="submit">Preview import</button></div></form>`)};
+FORMS.impPreview=async fd=>{const e=db.exams.find(x=>x.id===fd.get('id')),f=fd.get('file');if(!e||!f||!f.name)return;
+  let text;try{text=await f.text()}catch(x){return toast('Could not read that file.','err')}
+  const r=importParse(e,text);if(r.err)return toast(r.err,'err');
+  imp={eid:e.id,updates:r.updates};const n=Object.keys(r.updates).length,list=(t,a)=>a.length?`<div class="info warn">${icon('warn')}<span><b>${t} (${a.length})</b><br>${a.slice(0,8).map(esc).join('<br>')}${a.length>8?'<br>…':''}</span></div>`:'';
+  $('.dlg-body').innerHTML=`<p><b>${n}</b> row${n===1?'':'s'} ready to import into ${esc(e.title)}.${r.blank?' '+r.blank+' row(s) had no marks and were skipped.':''}</p><div class="stack" style="margin-top:12px">${list('Marks not valid',r.bad)}${list('No matching student in this batch',r.unmatched)}</div><p class="mute" style="margin-top:12px">Existing marks for the matched students will be replaced.</p><div class="actions"><button class="btn" data-act="close">Cancel</button><button class="btn pri" data-act="imp-apply" ${n?'':'disabled'}>Apply ${n} mark${n===1?'':'s'}</button></div>`};
+ACT['imp-apply']=()=>{if(!imp)return;const e=db.exams.find(x=>x.id===imp.eid);if(!e)return;Object.assign(e.marks,imp.updates);const n=Object.keys(imp.updates).length;save();closeModal();toast(n+' marks imported.','ok');render()};
+ACT['exam-tpl']=b=>{const e=db.exams.find(x=>x.id===b.dataset.id);if(!e)return;const rows=[['roll','email','name','marks'],...examStudents(e).map(s=>[s.roll||'',s.email||'',s.name,e.marks[s.id]===undefined?'':e.marks[s.id]])];
+  dl(new Blob(['\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n')],{type:'text/csv'}),slug(e.title)+'-template.csv')};
+ACT['exam-export']=b=>{const e=db.exams.find(x=>x.id===b.dataset.id);if(!e)return;
+  const rows=[['Roll','Name','Email','Batch','Marks','Total','Percentage','Status'],...examStudents(e).map(s=>{const r=calc(e,s.id);return [s.roll||'',s.name,s.email||'',s.batch||'',r.m!==undefined?r.m:(r.st==='absent'?'AB':''),e.total,r.pct!==undefined?r.pct:'',r.st==='pass'?'Pass':r.st==='fail'?'Fail':r.st==='absent'?'Absent':'Pending']})];
+  dl(new Blob(['\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n')],{type:'text/csv'}),slug(e.title)+'-results.csv');toast('CSV exported.','ok')};
+const docWrap=(title,body)=>`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font:15px/1.5 system-ui,'Segoe UI',Arial,sans-serif;margin:40px auto;max-width:760px;color:#111;padding:0 20px}h1{font-size:22px;margin:0 0 2px}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border:1px solid #bbb;padding:8px 10px;text-align:left}th{background:#f0f0f5;width:34%}.m{color:#555}button{margin-top:22px;padding:8px 16px;font:inherit}@media print{button{display:none}}</style></head><body>${body}<p class="m" style="margin-top:24px;font-size:13px">Generated ${esc(new Date().toLocaleString('en-IN'))} from the CompEdu offline demo. This is not an official mark sheet.</p><button onclick="window.print()">Print or save as PDF</button></body></html>`;
+ACT['exam-doc']=b=>{const u=me(),e=db.exams.find(x=>x.id===b.dataset.id),s=db.users.find(x=>x.id===b.dataset.s);
+  if(!e||!s)return;if(u.role!=='teacher'&&(s.id!==u.id||!e.published))return toast('You can only download your own published results.','err');
+  const r=calc(e,s.id);if(r.st==='pending')return toast('No marks entered yet.','err');
+  const row=(k,v)=>`<tr><th>${k}</th><td>${esc(v)}</td></tr>`;
+  dl(new Blob([docWrap('Result - '+s.name,`<h1>Result: ${esc(e.title)}</h1><p class="m">${esc(s.college||'')}</p><table>${row('Student',s.name)}${row('Roll number',s.roll||'-')}${row('Batch',s.batch||'-')}${row('Subject',e.subject)}${row('Exam date',fmtDate(e.date))}${row('Marks obtained',r.m!==undefined?r.m+' out of '+e.total:'Absent')}${row('Percentage',r.pct!==undefined?r.pct+'%':'-')}${row('Result',r.st==='pass'?'Pass':r.st==='fail'?'Fail':'Absent')}</table>`)],{type:'text/html'}),slug(e.title+'-'+s.name)+'-result.html');
+  toast('Result document downloaded. Open it and choose Print to save as PDF.','ok')};
+ACT['exam-sheet']=b=>{const e=db.exams.find(x=>x.id===b.dataset.id);if(!e)return;
+  const rows=examStudents(e).map(s=>{const r=calc(e,s.id);return `<tr><td>${esc(s.roll||'')}</td><td>${esc(s.name)}</td><td>${r.m!==undefined?r.m:(r.st==='absent'?'AB':'')}</td><td>${r.pct!==undefined?r.pct+'%':''}</td><td>${r.st==='pass'?'Pass':r.st==='fail'?'Fail':r.st==='absent'?'Absent':'Pending'}</td></tr>`}).join('');
+  dl(new Blob([docWrap('Result sheet - '+e.title,`<h1>${esc(e.title)}</h1><p class="m">${esc(e.subject)} · ${esc(batchLabel(e.batch))} · ${esc(fmtDate(e.date))} · out of ${e.total}, pass at ${e.pass}</p><table><thead><tr><th>Roll</th><th>Name</th><th>Marks</th><th>%</th><th>Result</th></tr></thead><tbody>${rows}</tbody></table>`).replace('th{background:#f0f0f5;width:34%}','th{background:#f0f0f5}')],{type:'text/html'}),slug(e.title)+'-sheet.html');toast('Result sheet downloaded.','ok')};
+
+/* ============ account ============ */
+function applyProfile(u,fd){
+  const name=(fd.get('name')||'').trim(),email=(fd.get('email')||'').trim(),mobile=(fd.get('mobile')||'').trim(),md=mobile.replace(/\D/g,'');
+  if(!name)return 'Enter a name.';
+  if(!email&&!mobile)return 'Add an email or a mobile number.';
+  if(email&&!MAILRE.test(email))return 'That email address does not look right.';
+  if(mobile&&(md.length<10||md.length>15))return 'Mobile number should have 10 to 15 digits.';
+  if(email&&db.users.some(x=>x.id!==u.id&&(x.email||'').toLowerCase()===email.toLowerCase()))return 'Another profile already uses that email.';
+  if(md&&db.users.some(x=>x.id!==u.id&&(x.mobile||'').replace(/\D/g,'').slice(-10)===md.slice(-10)))return 'Another profile already uses that mobile number.';
+  u.name=name;u.email=email;u.mobile=mobile;u.college=(fd.get('college')||'').trim();
+  if(u.role==='student'){u.dob=fd.get('dob')||'';u.batch=fd.get('batch')||u.batch;u.semester=fd.get('semester')||'';u.year=(fd.get('year')||'').trim();u.roll=(fd.get('roll')||'').trim();u.category=fd.get('category')||''}
+  return null}
+FORMS.profile=fd=>{const c=me(),u=db.users.find(x=>x.id===fd.get('id'));if(!u||(c.role!=='teacher'&&c.id!==u.id))return;
+  const err=applyProfile(u,fd);if(err)return toast(err,'err');
+  if(ui.photo!==undefined){if(ui.photo)u.photo=ui.photo;else delete u.photo}
+  save();toast('Profile saved.','ok');render()};
+CHG.photo=t=>{const f=t.files[0];t.value='';if(!f)return;if(!/^image\//.test(f.type))return toast('Choose an image file.','err');
+  const img=new Image(),url=URL.createObjectURL(f);
+  img.onload=()=>{const s=256,c=document.createElement('canvas');c.width=c.height=s;const m=Math.min(img.width,img.height);c.getContext('2d').drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,s,s);ui.photo=c.toDataURL('image/jpeg',.82);URL.revokeObjectURL(url);$('#ph-prev').innerHTML=`<span class="av lg"><img src="${ui.photo}" alt=""></span>`;toast('Photo ready. Press Save profile to keep it.','info')};
+  img.onerror=()=>{URL.revokeObjectURL(url);toast('Could not read that image.','err')};img.src=url};
+ACT['photo-clear']=()=>{ui.photo='';$('#ph-prev').innerHTML=avatar({name:me().name},'lg');toast('Photo removed. Press Save profile to keep that.','info')};
+function stuForm(u){return `<form class="stack" data-form="userSave"><input type="hidden" name="id" value="${u.id||''}">${profileFields(u)}<div class="actions"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri" type="submit">${u.id?'Save changes':'Add student'}</button></div></form>`}
+ACT['stu-add']=()=>modal('Add student',stuForm({role:'student',name:'',email:'',mobile:'',batch:db.settings.batches[0],semester:'',year:db.settings.academicYear,roll:'',category:'',college:''}),{wide:true});
+ACT['stu-edit']=b=>{const u=db.users.find(x=>x.id===b.dataset.id);if(u)modal('Edit student',stuForm(u),{wide:true})};
+FORMS.userSave=fd=>{const id=fd.get('id');let u=id?db.users.find(x=>x.id===id):{id:uid('u_'),role:'student'};if(!u)return;const err=applyProfile(u,fd);if(err)return toast(err,'err');if(!id)db.users.push(u);save();closeModal();toast(id?'Student updated.':'Student added.','ok');render()};
+ACT['stu-del']=b=>{const u=db.users.find(x=>x.id===b.dataset.id);if(!u)return;ask(`Remove ${u.name}? Their submissions and marks are deleted too.`,'Remove student',()=>{
+  db.subs.filter(s=>s.sid===u.id).forEach(s=>s.fileKey&&files.del(s.fileKey));db.subs=db.subs.filter(s=>s.sid!==u.id);db.exams.forEach(e=>delete e.marks[u.id]);db.notifs.forEach(n=>n.to=n.to.filter(x=>x!==u.id));db.users=db.users.filter(x=>x!==u);save();toast('Student removed.','ok');render()})};
+FORMS.settings=fd=>{const batches=[...new Set(String(fd.get('batches')||'').split(',').map(x=>x.trim()).filter(Boolean))].slice(0,20),country=String(fd.get('country')||'').replace(/\D/g,'');
+  if(!batches.length)return toast('Add at least one batch.','err');if(!country||country.length>3)return toast('Country code should be 1 to 3 digits, for example 91.','err');
+  db.settings={batches,country,academicYear:(fd.get('year')||'').trim()||db.settings.academicYear};save();toast('Settings saved.','ok');render()};
+let lastCloud='';
+FORMS.sb=async fd=>{
+  const url=String(fd.get('url')||'').trim().replace(/\/+$/,''),key=String(fd.get('key')||'').trim();
+  if(!url||!key)return toast('Enter both the project URL and the anon key.','err');
+  if(!/^https:\/\/[^\s/]+$/.test(url))return toast('The URL should look like https://yourproject.supabase.co','err');
+  if(key.startsWith('sb_secret_')||jwtRole(key)==='service_role')return toast('That is a secret key. Never put it in a web page. Use the anon (public) or publishable key.','err');
+  const box=$('#sb-status');box.innerHTML='<p class="mute">Testing…</p>';let html;
+  try{const r=await fetch(url+'/auth/v1/settings',{headers:{apikey:key}});if(!r.ok)throw new Error('HTTP '+r.status+(r.status===401||r.status===403?'. Check the key.':''));
+    const x=(await r.json()).external||{};let db_ok=false;try{const p=await fetch(url+'/rest/v1/rpc/ping',{method:'POST',headers:{apikey:key,'Content-Type':'application/json'},body:'{}'});db_ok=p.ok}catch(e){}
+    lastCloud="const CLOUD={url:'"+url+"',key:'"+key+"'};";
+    html=`<div class="info" style="margin:0 0 12px">${icon('check')}<span><b>Project reachable.</b> Email sign-in is ${x.email?'on':'off'}. ${db_ok?'The CompEdu database tables were found.':'<b>The database setup was not found.</b> Run the SQL from the Setup guide first.'}</span></div><p class="mute" style="margin-bottom:6px">Paste this line over the <b>const CLOUD</b> line at the top of index.html, then upload the file again:</p><pre class="code" tabindex="0">${esc(lastCloud)}</pre><div class="actions" style="margin-top:8px"><button class="btn" type="button" data-act="copy-cloud">${icon('copy',16)}Copy line</button></div>`}
+  catch(e){html=`<div class="info warn" style="margin:0">${icon('warn')}<span><b>Could not reach the project.</b> ${esc(e.message)}. Check the URL, and that the project is not paused.</span></div>`}
+  $('#sb-status').innerHTML=html};
+ACT['copy-cloud']=async()=>{const ok=await copyText(lastCloud);toast(ok?'Line copied.':'Copy is blocked here. Select the line and copy it.',ok?'ok':'err')};
+ACT.backup=()=>{dl(new Blob([JSON.stringify(db,null,1)],{type:'application/json'}),'compedu-backup-'+dstr(0)+'.json');toast('Backup downloaded.','ok')};
+CHG.restore=async t=>{const f=t.files[0];t.value='';if(!f)return;
+  try{const d=JSON.parse(await f.text());if(!d||!Array.isArray(d.users)||!d.users.some(u=>u.role==='teacher'))throw new Error('This does not look like a CompEdu backup.');
+    ask('Replace everything in this browser with the backup? Uploaded files are not part of a backup.','Replace data',()=>{LS.set(KEY,JSON.stringify(d));db=load();if(!me())LS.del(SKEY);toast('Backup restored.','ok');route()})}catch(e){toast(e.message,'err')}};
+ACT.reset=()=>ask('Delete all data in this browser and restore the sample data?','Reset everything',async()=>{await files.clear();db=seed();save();LS.del(SKEY);toast('Demo data restored.','ok');render()});
+
+/* setup guide */
+const SQL=`-- CompEdu: database, access rules and file storage for Supabase.
+-- Run this ONCE: Supabase dashboard > SQL Editor > New query > paste > Run.
+
+-- ============ profiles (one row per signed-up person) ============
+create table public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  role text not null default 'student' check (role in ('student','teacher')),
+  name text not null default '',
+  email text not null default '',
+  mobile text not null default '',
+  dob text not null default '',
+  batch text not null default '',
+  semester text not null default '',
+  year text not null default '',
+  roll text not null default '',
+  category text not null default '',
+  college text not null default '',
+  photo text not null default '',
+  created_at timestamptz not null default now()
+);
+
+create or replace function public.is_teacher() returns boolean
+language sql security definer stable set search_path = public as
+$$ select exists (select 1 from public.profiles where id = auth.uid() and role = 'teacher') $$;
+
+create or replace function public.my_batch() returns text
+language sql security definer stable set search_path = public as
+$$ select coalesce((select batch from public.profiles where id = auth.uid()), '') $$;
+
+-- creates a student profile automatically when someone signs up
+create or replace function public.handle_new_user() returns trigger
+language plpgsql security definer set search_path = public as
+$$
+begin
+  insert into public.profiles (id, email, name, mobile, roll)
+  values (new.id, coalesce(new.email, ''),
+          coalesce(new.raw_user_meta_data->>'name', ''),
+          coalesce(new.raw_user_meta_data->>'mobile', ''),
+          coalesce(new.raw_user_meta_data->>'roll', ''));
+  return new;
+end
+$$;
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
+create trigger on_auth_user_created after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+alter table public.profiles enable row level security;
+create policy profiles_select on public.profiles for select to authenticated
+  using (id = auth.uid() or role = 'teacher' or public.is_teacher());
+create policy profiles_update_own on public.profiles for update to authenticated
+  using (id = auth.uid())
+  with check (id = auth.uid() and role = (select p.role from public.profiles p where p.id = auth.uid()));
+create policy profiles_update_teacher on public.profiles for update to authenticated
+  using (public.is_teacher()) with check (public.is_teacher());
+
+-- ============ settings (batches, defaults) ============
+create table public.app_settings (
+  id int primary key default 1 check (id = 1),
+  batches jsonb not null default '["SE-A","SE-B","TE-A","BE-A"]',
+  academic_year text not null default '2026-27',
+  country text not null default '91'
+);
+insert into public.app_settings (id) values (1) on conflict do nothing;
+alter table public.app_settings enable row level security;
+create policy settings_select on public.app_settings for select to authenticated using (true);
+create policy settings_update on public.app_settings for update to authenticated
+  using (public.is_teacher()) with check (public.is_teacher());
+
+-- ============ notes ============
+create table public.notes (
+  id text primary key, title text not null, descr text not null default '',
+  subject text not null default '', batch text not null default 'All', sem text not null default '',
+  file_name text not null default '', size bigint not null default 0, ext text not null default '',
+  mime text not null default '', file_key text not null default '', ts bigint not null
+);
+alter table public.notes enable row level security;
+create policy notes_select on public.notes for select to authenticated
+  using (public.is_teacher() or batch = 'All' or batch = public.my_batch());
+create policy notes_teacher on public.notes for all to authenticated
+  using (public.is_teacher()) with check (public.is_teacher());
+
+-- ============ live classes ============
+create table public.classes (
+  id text primary key, title text not null, subject text not null default '',
+  batch text not null default 'All', cdate text not null, ctime text not null,
+  dur int not null default 60, link text not null default '', descr text not null default '',
+  recording text not null default '', resch boolean not null default false, prev jsonb
+);
+alter table public.classes enable row level security;
+create policy classes_select on public.classes for select to authenticated
+  using (public.is_teacher() or batch = 'All' or batch = public.my_batch());
+create policy classes_teacher on public.classes for all to authenticated
+  using (public.is_teacher()) with check (public.is_teacher());
+
+-- ============ classroom: announcements and resources ============
+create table public.posts (
+  id text primary key, kind text not null check (kind in ('announcement','resource')),
+  title text not null, body text not null default '', subject text not null default '',
+  batch text not null default 'All', url text not null default '',
+  pinned boolean not null default false, ts bigint not null
+);
+alter table public.posts enable row level security;
+create policy posts_select on public.posts for select to authenticated
+  using (public.is_teacher() or batch = 'All' or batch = public.my_batch());
+create policy posts_teacher on public.posts for all to authenticated
+  using (public.is_teacher()) with check (public.is_teacher());
+
+-- ============ classroom: assignments and submissions ============
+create table public.assigns (
+  id text primary key, title text not null, descr text not null default '',
+  subject text not null default '', batch text not null default 'All',
+  due text not null, url text not null default '', pinned boolean not null default false, ts bigint not null
+);
+alter table public.assigns enable row level security;
+create policy assigns_select on public.assigns for select to authenticated
+  using (public.is_teacher() or batch = 'All' or batch = public.my_batch());
+create policy assigns_teacher on public.assigns for all to authenticated
+  using (public.is_teacher()) with check (public.is_teacher());
+
+create table public.subs (
+  id text primary key, aid text not null,
+  sid uuid not null references public.profiles(id) on delete cascade,
+  answer text not null default '', file_name text not null default '', file_key text not null default '',
+  size bigint not null default 0, ts bigint not null, late boolean not null default false,
+  feedback text not null default ''
+);
+alter table public.subs enable row level security;
+create policy subs_select on public.subs for select to authenticated
+  using (public.is_teacher() or sid = auth.uid());
+create policy subs_insert on public.subs for insert to authenticated
+  with check (sid = auth.uid() and exists (select 1 from public.assigns a where a.id = aid));
+create policy subs_update on public.subs for update to authenticated
+  using (sid = auth.uid()) with check (sid = auth.uid());
+create policy subs_teacher on public.subs for all to authenticated
+  using (public.is_teacher()) with check (public.is_teacher());
+
+-- ============ exams and results ============
+create table public.exams (
+  id text primary key, title text not null, subject text not null default '',
+  batch text not null default 'All', edate text not null,
+  total numeric not null, pass_marks numeric not null, published boolean not null default false
+);
+alter table public.exams enable row level security;
+create policy exams_select on public.exams for select to authenticated
+  using (public.is_teacher() or (published and (batch = 'All' or batch = public.my_batch())));
+create policy exams_teacher on public.exams for all to authenticated
+  using (public.is_teacher()) with check (public.is_teacher());
+
+create table public.results (
+  id text primary key, eid text not null,
+  sid uuid not null references public.profiles(id) on delete cascade,
+  marks numeric, absent boolean not null default false
+);
+alter table public.results enable row level security;
+create policy results_select on public.results for select to authenticated
+  using (public.is_teacher() or (sid = auth.uid()
+         and exists (select 1 from public.exams e where e.id = eid and e.published)));
+create policy results_teacher on public.results for all to authenticated
+  using (public.is_teacher()) with check (public.is_teacher());
+
+-- ============ in-app notifications ============
+create table public.notifs (
+  id text primary key,
+  to_user uuid not null references public.profiles(id) on delete cascade,
+  title text not null default '', body text not null default '', view text not null default 'home',
+  ts bigint not null, is_read boolean not null default false
+);
+alter table public.notifs enable row level security;
+create policy notifs_select on public.notifs for select to authenticated using (to_user = auth.uid());
+create policy notifs_update on public.notifs for update to authenticated
+  using (to_user = auth.uid()) with check (to_user = auth.uid());
+create policy notifs_insert on public.notifs for insert to authenticated
+  with check (public.is_teacher()
+              or exists (select 1 from public.profiles p where p.id = to_user and p.role = 'teacher'));
+
+-- ============ table permissions (rows are still limited by the policies above) ============
+grant usage on schema public to anon, authenticated;
+-- tiny public function used by the keep-alive job and the setup test (reveals no data)
+create or replace function public.ping() returns int language sql stable as $$ select 1 $$;
+grant execute on function public.ping() to anon, authenticated;
+grant select, insert, update, delete on all tables in schema public to authenticated;
+
+-- ============ file storage (private buckets) ============
+insert into storage.buckets (id, name, public) values ('notes','notes', false), ('submissions','submissions', false)
+  on conflict (id) do nothing;
+
+create policy notes_files_read on storage.objects for select to authenticated
+  using (bucket_id = 'notes' and (public.is_teacher()
+         or exists (select 1 from public.notes n where n.file_key = 'notes/' || objects.name)));
+create policy notes_files_teacher on storage.objects for all to authenticated
+  using (bucket_id = 'notes' and public.is_teacher())
+  with check (bucket_id = 'notes' and public.is_teacher());
+
+create policy submissions_insert on storage.objects for insert to authenticated
+  with check (bucket_id = 'submissions' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy submissions_read on storage.objects for select to authenticated
+  using (bucket_id = 'submissions'
+         and ((storage.foldername(name))[1] = auth.uid()::text or public.is_teacher()));
+create policy submissions_delete on storage.objects for delete to authenticated
+  using (bucket_id = 'submissions'
+         and ((storage.foldername(name))[1] = auth.uid()::text or public.is_teacher()));
+
+-- ============ AFTER you sign up on the site with YOUR teacher email, run this once ============
+-- update public.profiles set role = 'teacher' where email = 'you@example.com';
+`;
+const KEEP=`name: Keep Supabase awake
+on:
+  schedule:
+    - cron: '0 6 */3 * *'
+  workflow_dispatch: {}
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the database
+        run: |
+          curl -fsS -X POST "\${{ secrets.SUPABASE_URL }}/rest/v1/rpc/ping" \\
+            -H "apikey: \${{ secrets.SUPABASE_ANON_KEY }}" \\
+            -H "Content-Type: application/json" -d '{}'`;
+ACT.guide=()=>modal('Go-live guide (free)',`<div class="stack">
+ <div class="info" style="margin:0">${icon('info')}<span>${CLOUD_ON?'This site is already connected to Supabase. Use this guide for setup details and the keep-alive job.':'This file is in offline demo mode. Follow these steps to turn it into a real site for your students.'}</span></div>
+ <div><h3>1. Create the free Supabase project</h3><ol class="steps"><li>Sign up at supabase.com and create a new project. Save the database password somewhere safe.</li><li>Open <b>SQL Editor</b> then <b>New query</b>, paste the SQL at the bottom of this guide, press <b>Run</b>. It creates the tables, private file storage and the rules that keep each student's data private.</li><li>Open <b>Authentication</b> then <b>Sign In / Providers</b> then <b>Email</b>. For a closed class, turn <b>Confirm email</b> off. Supabase's built-in email sender allows only a few emails per hour, so confirmation emails would block students from signing up. (Trade-off: anyone who finds your link can create an account, but new accounts see only content shared with all batches.)</li></ol></div>
+ <div><h3>2. Connect the file to your project</h3><ol class="steps"><li>In Supabase open <b>Project Settings</b> then <b>API</b>. Copy the <b>Project URL</b> and the <b>anon</b> (public) key. Never use the service_role or secret key.</li><li>Paste them into the test box in <b>Account</b>, press <b>Test</b>, and copy the line it shows.</li><li>Open index.html in Notepad, replace the <b>const CLOUD</b> line at the top with the copied line, and save.</li><li>Upload the file to GitHub Pages or Cloudflare Pages as before.</li><li>In Supabase open <b>Authentication</b> then <b>URL Configuration</b>. Set <b>Site URL</b> to your live link, for example https://YOUR-NAME.github.io/compedu/ so password reset links come back to your site.</li></ol></div>
+ <div><h3>3. Make yourself the teacher</h3><ol class="steps"><li>Open your live site, choose <b>Student sign up</b> and register with your own email.</li><li>In Supabase SQL Editor run the line at the very end of the SQL below, with your email: <code>update public.profiles set role = 'teacher' where email = 'you@example.com';</code></li><li>Log out and log in again. You now see the teacher tools. Students sign up themselves, and you set each batch in <b>Account</b> then <b>Students</b>.</li></ol></div>
+ <div><h3>4. Stop the free project from pausing</h3><p class="mute">Supabase pauses free projects after about a week with no requests. Add this file to your GitHub repository at <code>.github/workflows/keepalive.yml</code> and add two repository secrets, <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> (Settings, Secrets and variables, Actions). GitHub may switch off scheduled jobs after 60 days with no repository activity, so check the Actions tab now and then.</p><pre class="code" tabindex="0">${esc(KEEP)}</pre></div>
+ <div><h3>Phone OTP</h3><p class="mute">Not offered. Supabase phone sign-in needs an SMS provider, and SMS normally costs money. Sign-in here uses email and password.</p></div>
+ <div><h3>SQL to run once</h3><pre class="code" tabindex="0">${esc(SQL)}</pre><div class="actions" style="margin-top:10px"><button class="btn" data-act="copy-sql">${icon('copy',16)}Copy SQL</button></div></div></div>`,{wide:true});
+ACT['copy-sql']=async()=>{const ok=await copyText(SQL);toast(ok?'SQL copied.':'Copy is blocked here. Select the text and copy it.',ok?'ok':'err')};
+
+/* ============ boot ============ */
+function afterRender(){
+  if(ui.view==='account'&&navigator.storage&&navigator.storage.estimate)navigator.storage.estimate().then(e=>{const el=$('#stor');if(el)el.textContent='Everything is stored in this browser ('+fmtSize(e.usage||0)+' used of about '+fmtSize(e.quota||0)+' available). Clearing site data deletes it.'}).catch(()=>{});
+}
+setInterval(()=>$$('[data-cd]').forEach(el=>el.textContent=cdText(Number(el.dataset.cd))),30000);
+
+/* ============ cloud mode (Supabase over plain REST, no extra libraries) ============ */
+const cloud={ready:false,loading:false,sess:null,uid(){return this.sess&&this.sess.user?this.sess.user.id:null}};
+const SBS='compedu_sb_session';
+const SBURL=CLOUD.url.replace(/\/+$/,'');
+function sbLoadSess(){try{cloud.sess=JSON.parse(LS.get(SBS)||'null')}catch(e){cloud.sess=null}}
+function sbSaveSess(s){cloud.sess=s;if(s)LS.set(SBS,JSON.stringify(s));else LS.del(SBS)}
+const normSess=j=>({access_token:j.access_token,refresh_token:j.refresh_token,expires_at:j.expires_at||Math.floor(Date.now()/1000)+(j.expires_in||3600),user:j.user||(cloud.sess&&cloud.sess.user)});
+const authMsg=j=>{const m=j.error_description||j.msg||j.message||j.error||'Something went wrong.';return /invalid login/i.test(m)?'Wrong email or password, or the email is not confirmed yet.':/rate limit/i.test(m)?'Too many emails were sent recently. Wait a while and try again.':m};
+async function authPost(path,body){let r;try{r=await fetch(SBURL+path,{method:'POST',headers:{apikey:CLOUD.key,'Content-Type':'application/json'},body:JSON.stringify(body)})}catch(e){throw new Error('Cannot reach Supabase. Check your internet connection.')}
+  const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(authMsg(j));return j}
+async function sbRefresh(){const s=cloud.sess;if(!s||!s.refresh_token)throw new Error('Session expired. Please log in again.');
+  let j;try{j=await authPost('/auth/v1/token?grant_type=refresh_token',{refresh_token:s.refresh_token})}catch(e){throw new Error('Session expired. Please log in again.')}
+  sbSaveSess(normSess(j))}
+async function sbReq(path,o={},retry=true){
+  if(retry&&cloud.sess&&cloud.sess.expires_at&&cloud.sess.expires_at*1000-Date.now()<60000){try{await sbRefresh()}catch(e){}}
+  const headers=Object.assign({apikey:CLOUD.key},cloud.sess?{Authorization:'Bearer '+cloud.sess.access_token}:{},o.headers||{});
+  let r;try{r=await fetch(SBURL+path,Object.assign({},o,{headers}))}catch(e){throw new Error('Cannot reach Supabase. Check your internet connection.')}
+  if(r.status===401&&retry&&cloud.sess){await sbRefresh();return sbReq(path,o,false)}
+  if(!r.ok){let m='';try{const j=await r.clone().json();m=j.message||j.msg||j.error_description||j.error||''}catch(e){}
+    if(/row-level security|permission denied/i.test(m))m='You do not have permission to do that.';throw new Error(m||('Request failed ('+r.status+')'))}
+  return r}
+
+/* ---- rows <-> app data ---- */
+const T=['profiles','app_settings','notes','classes','posts','assigns','exams','results','subs','notifs'];
+function toRows(d){
+  const R={};const m=(t,arr,f)=>{R[t]={};arr.forEach(x=>{const r=f(x);R[t][r.id]=r})};
+  m('profiles',d.users,u=>({id:u.id,role:u.role,name:u.name||'',email:u.email||'',mobile:u.mobile||'',dob:u.dob||'',batch:u.batch||'',semester:u.semester||'',year:u.year||'',roll:u.roll||'',category:u.category||'',college:u.college||'',photo:u.photo||''}));
+  R.app_settings={'1':{id:1,batches:d.settings.batches,academic_year:d.settings.academicYear,country:d.settings.country}};
+  m('notes',d.notes,n=>({id:n.id,title:n.title,descr:n.desc||'',subject:n.subject||'',batch:n.batch,sem:n.sem||'',file_name:n.fileName||'',size:n.size||0,ext:n.ext||'',mime:n.mime||'',file_key:n.fileKey||'',ts:n.ts}));
+  m('classes',d.classes,c=>({id:c.id,title:c.title,subject:c.subject||'',batch:c.batch,cdate:c.date,ctime:c.time,dur:c.dur||60,link:c.link||'',descr:c.desc||'',recording:c.recording||'',resch:!!c.resch,prev:c.prev||null}));
+  m('posts',d.posts,p=>({id:p.id,kind:p.kind,title:p.title,body:p.body||'',subject:p.subject||'',batch:p.batch,url:p.url||'',pinned:!!p.pinned,ts:p.ts}));
+  m('assigns',d.assigns,a=>({id:a.id,title:a.title,descr:a.desc||'',subject:a.subject||'',batch:a.batch,due:a.due,url:a.url||'',pinned:!!a.pinned,ts:a.ts}));
+  m('exams',d.exams,e=>({id:e.id,title:e.title,subject:e.subject||'',batch:e.batch,edate:e.date,total:e.total,pass_marks:e.pass,published:!!e.published}));
+  R.results={};d.exams.forEach(e=>Object.keys(e.marks||{}).forEach(sid=>{const v=e.marks[sid],id=e.id+'__'+sid;R.results[id]={id,eid:e.id,sid,marks:v==='AB'?null:Number(v),absent:v==='AB'}}));
+  m('subs',d.subs,s=>({id:s.id,aid:s.aid,sid:s.sid,answer:s.text||'',file_name:s.fileName||'',file_key:s.fileKey||'',size:s.size||0,ts:s.ts,late:!!s.late,feedback:s.feedback||''}));
+  R.notifs={};d.notifs.forEach(n=>n.to.forEach(uid=>{const id=n.to.length===1?n.id:n.id+'__'+uid;R.notifs[id]={id,to_user:uid,title:n.title||'',body:n.body||'',view:n.view||'home',ts:n.ts,is_read:n.readBy.includes(uid)}}));
+  return R}
+function fromRows(o){
+  const d=emptyDb(),g=t=>o[t]||[];
+  d.users=g('profiles').map(r=>({id:r.id,role:r.role,name:r.name,email:r.email,mobile:r.mobile,dob:r.dob,batch:r.batch,semester:r.semester,year:r.year,roll:r.roll,category:r.category,college:r.college,photo:r.photo||undefined}));
+  const s=g('app_settings')[0];if(s)d.settings={batches:Array.isArray(s.batches)&&s.batches.length?s.batches:d.settings.batches,country:s.country||'91',academicYear:s.academic_year||d.settings.academicYear};
+  d.notes=g('notes').map(r=>({id:r.id,title:r.title,desc:r.descr,subject:r.subject,batch:r.batch,sem:r.sem,fileName:r.file_name,size:Number(r.size),ext:r.ext,mime:r.mime,fileKey:r.file_key,ts:Number(r.ts)}));
+  d.classes=g('classes').map(r=>{const c={id:r.id,title:r.title,subject:r.subject,batch:r.batch,date:r.cdate,time:r.ctime,dur:r.dur,link:r.link,desc:r.descr,recording:r.recording};if(r.resch){c.resch=true;if(r.prev)c.prev=r.prev}return c});
+  d.posts=g('posts').map(r=>{const p={id:r.id,kind:r.kind,title:r.title,body:r.body,subject:r.subject,batch:r.batch,pinned:r.pinned,ts:Number(r.ts)};if(r.kind==='resource')p.url=r.url;return p});
+  d.assigns=g('assigns').map(r=>({id:r.id,title:r.title,desc:r.descr,subject:r.subject,batch:r.batch,due:r.due,url:r.url,pinned:r.pinned,ts:Number(r.ts)}));
+  d.exams=g('exams').map(r=>({id:r.id,title:r.title,subject:r.subject,batch:r.batch,date:r.edate,total:Number(r.total),pass:Number(r.pass_marks),published:r.published,marks:{}}));
+  g('results').forEach(r=>{const e=d.exams.find(x=>x.id===r.eid);if(e)e.marks[r.sid]=r.absent?'AB':(r.marks===null?undefined:Number(r.marks));if(e&&e.marks[r.sid]===undefined)delete e.marks[r.sid]});
+  d.subs=g('subs').map(r=>({id:r.id,aid:r.aid,sid:r.sid,text:r.answer,fileName:r.file_name,fileKey:r.file_key,size:Number(r.size),ts:Number(r.ts),late:r.late,feedback:r.feedback}));
+  d.notifs=g('notifs').map(r=>({id:r.id,to:[r.to_user],title:r.title,body:r.body,view:r.view,ts:Number(r.ts),readBy:r.is_read?[r.to_user]:[]}));
+  return d}
+function diffRows(a,b){const ops=[];for(const t of T){const A=a[t]||{},B=b[t]||{},ins=[],upd=[],del=[];
+  for(const id in B){if(!(id in A))ins.push(B[id]);else if(JSON.stringify(A[id])!==JSON.stringify(B[id]))upd.push(B[id])}
+  for(const id in A)if(!(id in B))del.push(id);
+  if(ins.length||upd.length||del.length)ops.push({t,ins,upd,del})}return ops}
+const JH={'Content-Type':'application/json'};
+async function pushOps(ops){
+  for(const o of ops){
+    if(o.ins.length)await sbReq('/rest/v1/'+o.t,{method:'POST',headers:Object.assign({Prefer:'return=minimal'},JH),body:JSON.stringify(o.ins)});
+    for(const r of o.upd){const {id,...rest}=r;const x=await sbReq('/rest/v1/'+o.t+'?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:Object.assign({Prefer:'return=representation'},JH),body:JSON.stringify(rest)});const j=await x.json();if(!Array.isArray(j)||!j.length)throw new Error('You do not have permission to change that.')}}
+  for(const o of ops){if(o.del.length){const x=await sbReq('/rest/v1/'+o.t+'?id=in.('+o.del.map(encodeURIComponent).join(',')+')',{method:'DELETE',headers:{Prefer:'return=representation'}});const j=await x.json();if(!Array.isArray(j)||j.length<o.del.length)throw new Error('You do not have permission to delete that.')}}}
+
+/* ---- load, save, refresh ---- */
+let snap={},syncTimer=null,inFlight=false,again=false,pending=false;
+async function cloudFetch(){const out={};await Promise.all(T.map(async t=>{const r=await sbReq('/rest/v1/'+t+'?select=*&limit=5000');out[t]=await r.json()}));return out}
+async function cloudLoad(){const nd=fromRows(await cloudFetch());db=nd;snap=toRows(db)}
+function setSync(s){const p=$('#pill');if(!p)return;p.className='pill '+(s==='err'?'err':'ok');p.textContent=s==='saving'?'Saving…':s==='err'?'Save failed':'Cloud · saved'}
+function scheduleSync(){if(!cloud.ready)return;pending=true;clearTimeout(syncTimer);setSync('saving');syncTimer=setTimeout(runSync,250)}
+async function runSync(){
+  if(inFlight){again=true;return}inFlight=true;
+  try{do{again=false;const now=toRows(db),ops=diffRows(snap,now);if(ops.length)await pushOps(ops);snap=now}while(again);setSync('ok')}
+  catch(e){setSync('err');onSyncError(e)}
+  finally{inFlight=false;pending=false}}
+async function onSyncError(e){
+  if(/expired|log in again/i.test(e.message)){toast(e.message,'err');return cloudLogout()}
+  toast('Could not save: '+e.message+' Reloading the latest data.','err');
+  try{await cloudLoad();render()}catch(x){toast(x.message,'err')}}
+async function cloudRefresh(){
+  if(!CLOUD_ON||!cloud.ready||inFlight||pending||document.hidden||!$('#modal').hidden)return;
+  const a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return;
+  try{const nd=fromRows(await cloudFetch()),nr=toRows(nd);if(inFlight||pending)return;if(diffRows(snap,nr).length){db=nd;snap=nr;render()}}
+  catch(e){if(/expired|log in again/i.test(e.message)){toast(e.message,'err');cloudLogout()}}}
+setInterval(cloudRefresh,45000);window.addEventListener('focus',()=>setTimeout(cloudRefresh,300));
+
+/* ---- sign in / out ---- */
+async function cloudBoot(){
+  cloud.loading=true;cloud.ready=false;render();
+  try{if(cloud.sess.expires_at*1000<Date.now()+30000)await sbRefresh();await cloudLoad();
+    if(!db.users.some(u=>u.id===cloud.uid()))throw new Error('Your profile was not found. Ask your teacher to check your account.');
+    cloud.ready=true}
+  catch(e){sbSaveSess(null);db=emptyDb();toast(e.message,'err')}
+  cloud.loading=false;route();
+  if(cloud.ready&&ui.recovery){ui.recovery=false;openNewPw()}}
+async function cloudLogin(email,pw){try{const j=await authPost('/auth/v1/token?grant_type=password',{email:email.trim(),password:pw});sbSaveSess(normSess(j));await cloudBoot()}catch(e){toast(e.message,'err')}}
+async function cloudSignup(fd){
+  const name=(fd.get('name')||'').trim(),email=(fd.get('email')||'').trim(),pw=fd.get('pw')||'',mobile=(fd.get('mobile')||'').trim(),roll=(fd.get('roll')||'').trim();
+  if(!name)return toast('Enter your name.','err');if(!MAILRE.test(email))return toast('Enter a valid email address.','err');if(pw.length<6)return toast('Password needs at least 6 characters.','err');
+  if(mobile&&mobile.replace(/\D/g,'').length<10)return toast('Mobile number should have at least 10 digits.','err');
+  try{const j=await authPost('/auth/v1/signup',{email,password:pw,data:{name,mobile,roll}});
+    if(j.access_token){sbSaveSess(normSess(j));await cloudBoot();toast('Account created.','ok')}
+    else{ui.auth.tab='login';renderAuth();toast('Account created. Open the confirmation link we emailed you, then log in.','ok')}}
+  catch(e){toast(e.message,'err')}}
+async function cloudLogout(){
+  try{if(cloud.sess)await fetch(SBURL+'/auth/v1/logout',{method:'POST',headers:{apikey:CLOUD.key,Authorization:'Bearer '+cloud.sess.access_token}})}catch(e){}
+  clearTimeout(syncTimer);sbSaveSess(null);cloud.ready=false;cloud.loading=false;db=emptyDb();snap={};ui.auth.tab='login';ui.nav=false;
+  history.replaceState(null,'',location.pathname+location.search);renderAuth()}
+function openNewPw(){modal('Set a new password',`<form class="stack" data-form="newpw"><label class="f">New password<input name="pw" type="password" minlength="6" required autocomplete="new-password"></label><div class="actions"><button class="btn pri" type="submit">Save password</button></div></form>`)}
+FORMS.newpw=async fd=>{try{await sbReq('/auth/v1/user',{method:'PUT',headers:JH,body:JSON.stringify({password:fd.get('pw')})});closeModal();toast('Password updated.','ok')}catch(e){toast(e.message,'err')}};
+ACT.forgot=()=>modal('Reset password',`<form class="stack" data-form="forgot"><p class="mute">Enter your account email. We will send a link to choose a new password.</p><label class="f">Email<input name="email" type="email" required autocomplete="username"></label><div class="actions"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri" type="submit">Send link</button></div></form>`);
+FORMS.forgot=async fd=>{try{await authPost('/auth/v1/recover',{email:(fd.get('email')||'').trim()});closeModal();toast('If that email has an account, a reset link is on its way. Free email sending is limited, so it can take a few minutes.','ok')}catch(e){toast(e.message,'err')}};
+async function authFromHash(){
+  const h=location.hash.replace(/^#\/?/,'');if(!/(^|&)(access_token|error)=/.test(h))return;
+  const p=new URLSearchParams(h);history.replaceState(null,'',location.pathname+location.search+'#/home');
+  if(p.get('error')){toast(p.get('error_description')||'That link is not valid.','err');return}
+  const s={access_token:p.get('access_token'),refresh_token:p.get('refresh_token'),expires_at:Number(p.get('expires_at'))||Math.floor(Date.now()/1000)+Number(p.get('expires_in')||3600)};
+  try{const r=await fetch(SBURL+'/auth/v1/user',{headers:{apikey:CLOUD.key,Authorization:'Bearer '+s.access_token}});if(!r.ok)throw 0;s.user=await r.json();sbSaveSess(s);if(p.get('type')==='recovery')ui.recovery=true}
+  catch(e){toast('That link has expired. Request a new one.','err')}}
+
+/* ---- sign-in screen in cloud mode ---- */
+function renderAuthCloud(){
+  const isLogin=ui.auth.tab==='login';
+  $('#app').innerHTML=`<div class="auth"><section class="auth-l"><div class="brand"><span class="logo">${icon('code',20)}</span>CompEdu</div>
+  <div><h1>Notes, live classes and results for your Computer Engineering batch.</h1></div>
+  <ul><li>${icon('notes',20)}<span><b>Notes</b>Files from your teacher, sorted by subject and semester</span></li><li>${icon('live',20)}<span><b>Live classes</b>Google Meet links with dates and times</span></li><li>${icon('room',20)}<span><b>Classroom</b>Announcements, assignments and submissions</span></li><li>${icon('exam',20)}<span><b>Exams</b>Your own published results</span></li></ul></section>
+  <section class="auth-r"><div class="auth-tools"><button class="icon-btn" data-act="theme" aria-label="Switch light or dark mode">${icon(document.documentElement.dataset.theme==='dark'?'sun':'moon')}</button></div>
+  <div class="auth-card card"><div class="tabs" role="tablist"><button role="tab" aria-selected="${isLogin}" data-act="auth-tab" data-t="login">Log in</button><button role="tab" aria-selected="${!isLogin}" data-act="auth-tab" data-t="signup">Student sign up</button></div>
+  ${isLogin?`<h2>Welcome back</h2><p class="sub" style="margin-bottom:16px">Teachers and students log in here.</p>
+  <form class="stack" data-form="login"><label class="f">Email<input name="ident" type="email" autocomplete="username" required></label><label class="f">Password<input name="pw" type="password" autocomplete="current-password" required></label><button class="btn pri" type="submit">Log in</button></form>
+  <p style="margin-top:14px"><button class="btn sm" data-act="forgot">Forgot password?</button></p>`
+  :`<h2>Create your student account</h2><p class="sub" style="margin-bottom:16px">Use an email address you can open.</p>
+  <form class="stack" data-form="signup"><label class="f">Full name<input name="name" required autocomplete="name"></label><label class="f">Email<input name="email" type="email" required autocomplete="username"></label><div class="g2"><label class="f">Mobile number <small>Optional</small><input name="mobile" inputmode="tel" autocomplete="tel"></label><label class="f">Roll number<input name="roll" required></label></div><label class="f">Password<input name="pw" type="password" minlength="6" required autocomplete="new-password"><small>At least 6 characters.</small></label><button class="btn pri" type="submit">Create account</button></form>
+  <p class="mute" style="font-size:.88rem;margin-top:12px">Your teacher will assign your batch after you sign up.</p>`}
+  <p class="mute" style="font-size:.82rem;margin-top:14px">Sign-in is by email. Phone OTP needs a paid SMS service, so it is not offered.</p></div></section></div>`;
+}
+
+/* ---- file storage ---- */
+const cloudFiles={
+  path(k){const [b,...p]=String(k).split('/');if(!b||!p.length)throw new Error('This file has no cloud location.');return b+'/'+p.map(encodeURIComponent).join('/')},
+  async put(k,b){await sbReq('/storage/v1/object/'+this.path(k),{method:'POST',headers:{'Content-Type':b.type||'application/octet-stream'},body:b})},
+  async get(k){const r=await sbReq('/storage/v1/object/authenticated/'+this.path(k));return r.blob()},
+  async del(k){try{await sbReq('/storage/v1/object/'+this.path(k),{method:'DELETE'})}catch(e){}},
+  clear(){return Promise.resolve()}};
+const files=CLOUD_ON?cloudFiles:idb;
+
+/* ============ boot ============ */
+(async function boot(){
+  if(CLOUD_BAD)toast('The key in CLOUD is a secret key. Remove it and use the anon (public) key. Running in demo mode.','err');
+  if(CLOUD_ON){sbLoadSess();await authFromHash();if(cloud.sess)await cloudBoot();else route()}
+  else route();
+})();
+</script>
+</body>
+</html>
